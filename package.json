@@ -9,6 +9,7 @@
     "cookie-parser": "~1.4.4",
     "csv": "^5.1.1",
     "debug": "~2.6.9",
+    "delimited-file-reader": "^1.0.7",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
