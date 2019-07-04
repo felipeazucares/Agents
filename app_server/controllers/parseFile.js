@@ -1,10 +1,12 @@
-/* Parses the file provided and extracts the categories
-   the files is a set of 1 field records.
+/* 
+    Parses the array provided and extracts the field categories
+    and constructs a javascript object
 */
 
 const parseFile = function(inputDataRecs) {
     let accumulatedData = '';
     let parsedRecords = [{}];
+    // these are fields that we are looking for in each input element
     const categories = ['Telephone',
                     'Email',
                     'Address',
@@ -17,6 +19,12 @@ const parseFile = function(inputDataRecs) {
     let index = 0;
     let currentField = 'unknown';
     let found = false;
+
+    // need to add in logic to extract name from first couple of records keying
+    // on 'back to explore' and then generate a logical record for each 
+    // records post 'back to explore  should be added into a 'details' category
+    // once this is structured we can write it into a database file
+
     for (i=0;i<=inputDataRecs.length-1;i++){
         found = false;
         /* check current record against list of categories */
@@ -42,9 +50,7 @@ const parseFile = function(inputDataRecs) {
             console.log(`accumulating: ${currentField} : ${inputDataRecs[i]} `)
             accumulatedData+=inputDataRecs[i]
         }
-
     }
-    
     console.log(`result: ${JSON.stringify(parsedRecords)}`)
 }
 
