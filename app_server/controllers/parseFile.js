@@ -3,18 +3,18 @@
     and constructs a javascript object
 */
 
-const parseFile = function(inputDataRecs) {
+const parseFile = function (inputDataRecs) {
     let accumulatedData = '';
     let parsedRecords = [{}];
     // these are fields that we are looking for in each input element
     const categories = ['Telephone',
-                    'Email',
-                    'Address',
-                    'Website',
-                    'Membership',
-                    'back to explore categories',
-                    'Directors']
-    
+        'Email',
+        'Address',
+        'Website',
+        'Membership',
+        'back to explore categories',
+        'Directors']
+
     let recordStart = true;
     let index = 0;
     let currentField = 'unknown';
@@ -25,12 +25,12 @@ const parseFile = function(inputDataRecs) {
     // records post 'back to explore  should be added into a 'details' category
     // once this is structured we can write it into a database file
 
-    for (i=0;i<=inputDataRecs.length-1;i++){
+    for (i = 0; i <= inputDataRecs.length - 1; i++) {
         found = false;
         /* check current record against list of categories */
-        for(j=0;j<=categories.length-1;j++){
+        for (j = 0; j <= categories.length - 1; j++) {
             console.log(`Looking for ${categories[j]} `)
-            if(inputDataRecs[i].toUpperCase().trim()==categories[j].toUpperCase()) {
+            if (inputDataRecs[i].toUpperCase().trim() == categories[j].toUpperCase()) {
                 // detected new field name so write all collected data to old key
                 recordStart = false;
                 found = true;
@@ -46,14 +46,14 @@ const parseFile = function(inputDataRecs) {
             }
         }
         //only accumulate for non empty records or ones that don't contain categories
-        if(inputDataRecs[i].length!=0 && found!= true){
+        if (inputDataRecs[i].length != 0 && found != true) {
             console.log(`accumulating: ${currentField} : ${inputDataRecs[i]} `)
-            accumulatedData+=inputDataRecs[i]
+            accumulatedData += inputDataRecs[i]
         }
     }
     console.log(`result: ${JSON.stringify(parsedRecords)}`)
 }
 
-module.exports={
+module.exports = {
     parseFile
 }
