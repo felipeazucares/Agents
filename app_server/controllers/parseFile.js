@@ -19,7 +19,7 @@ const parseFile = (inputDataRecs) => {
     let currentField = 'unknown';
     let found = false;
     let debug = true;
-
+    
     for (i = 0; i <= inputDataRecs.length - 1; i++) {
         found = false;
         /* check current record against list of categories */
@@ -30,34 +30,44 @@ const parseFile = (inputDataRecs) => {
                 // first of all check to see if we've detected back to explore which is start of a new agency
                 found = true;
                 if (categories[j] != 'back to explore categories') {
-                    recordStart = false;
+                    //recordStart = false;
                     if (debug == true) { console.log(`Found ${categories[j]} in ${inputDataRecs[i]}`) }
+                    if (debug == true) { console.log(`Writing ${accumulatedData} to ${currentField} in record: ${index}`) }
                     parsedRecords[index][currentField] = accumulatedData;
                     //now reset name of field we are collecting data for
                     currentField = categories[j].toLowerCase();
                     //once we've found a category don't need to search for any more
+                    if (debug == true) { console.log(`resetting accumulatedData`) }
+                    accumulatedData = '';
                     break;
                 }
                 else {
                     if (debug == true) { console.log(`Found new agency ${inputDataRecs[i]}: data accumulated: ${accumulatedData}`) }
                     index += 1;
-                    //currentField = "name";
-                    //parsedRecords[index]['name'] = accumulatedData
-                    parsedRecords[index]['name'] = accumulatedData;
+                    
+                    //parsedRecords[index]['name'] = accumulatedData;
+                    index=parsedRecords.push({name: accumulatedData})-1
                     //after the name we usually get the agencies' deets
                     currentField = "details";
+                    if (debug == true) { console.log(`resetting accumulatedData. Index = ${index}`) }
+                    accumulatedData = '';
 
                 }
-                //reset accumulated data for the field we are now collecting for
-                accumulatedData = '';
+
             }
         }
         //only accumulate for non empty records or ones that don't contain categories
         if (inputDataRecs[i].length != 0 && found != true) {
             if (debug == true) { console.log(`accumulating: ${currentField} : ${inputDataRecs[i]} `) }
+            if (debug == true) { console.log(`accumulatedData: ${accumulatedData}`) }
             accumulatedData += inputDataRecs[i]
         }
     }
+
+    //once reading the input records  is complete need to write out last set of accumulated data.
+    if (debug == true) { console.log(`Reached end of input records.`) }
+    if (debug == true) { console.log(`Writing ${accumulatedData} to ${currentField} in record: ${index}`) }
+    parsedRecords[index][currentField] = accumulatedData;
 
     if (debug == true) { console.log(`result: ${JSON.stringify(parsedRecords)}`) }
     return parsedRecords;
