@@ -19,6 +19,7 @@ const parseFile = function (inputDataRecs) {
     let index = 0;
     let currentField = 'unknown';
     let found = false;
+    let debug = true;
 
     // need to add in logic to extract name from first couple of records keying
     // on 'back to explore' and then generate a logical record for each 
@@ -29,13 +30,12 @@ const parseFile = function (inputDataRecs) {
         found = false;
         /* check current record against list of categories */
         for (j = 0; j <= categories.length - 1; j++) {
-            console.log(`Looking for ${categories[j]} `)
+            if(debug == true){console.log(`Looking for ${categories[j]} `)}
             if (inputDataRecs[i].toUpperCase().trim() == categories[j].toUpperCase()) {
-                // detected new field name so write all collected data to old key
+                // detected new field name so write accumuated data to parsed records with last key read from file 
                 recordStart = false;
                 found = true;
-                //write accumuated data to parsed records with last key read from file 
-                console.log(`Found in ${inputDataRecs[i]}`)
+                if(debug == true){console.log(`Found in ${inputDataRecs[i]}`)}
                 parsedRecords[index][currentField] = accumulatedData;
                 //now reset name of field we are collecting data for
                 currentField = categories[j];
@@ -47,11 +47,12 @@ const parseFile = function (inputDataRecs) {
         }
         //only accumulate for non empty records or ones that don't contain categories
         if (inputDataRecs[i].length != 0 && found != true) {
-            console.log(`accumulating: ${currentField} : ${inputDataRecs[i]} `)
+            if(debug == true){console.log(`accumulating: ${currentField} : ${inputDataRecs[i]} `)}
             accumulatedData += inputDataRecs[i]
         }
     }
-    console.log(`result: ${JSON.stringify(parsedRecords)}`)
+
+    if(debug == true){console.log(`result: ${JSON.stringify(parsedRecords)}`)}
 }
 
 module.exports = {
