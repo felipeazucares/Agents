@@ -5,7 +5,7 @@ mongoose.connection.on('connected',()=>{console.log(`Mongoose connected to ${dbU
 mongoose.connection.on('error',err=>{console.log(`Mongoose connection error:${err}`)});
 const gracefulShutdown = (msg, callback)=>{
     mongoose.connection.close( ()=> {
-        console.log(`Mongoose disconnected through ${msg}`);
+        console.log(`Mongoose disconnected via ${msg}`);
         callback();
     })
 }
