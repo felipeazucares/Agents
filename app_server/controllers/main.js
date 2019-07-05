@@ -9,7 +9,7 @@ const index = (req, res) => {
         // dataOutput = JSON.stringify(dataOutput.split('\t\r\n'));
         dataOutput = dataOutput.split('\t\r\n');       
         //console.log(JSON.stringify(dataOutput));
-        parsedData = parser.parseFile(dataOutput.slice(0,30));
+        parsedData = parser.parseFile(dataOutput);
         res.render('index',{title:'Agents', agentData: parsedData});
     }).catch(err => {
         console.error(err);
