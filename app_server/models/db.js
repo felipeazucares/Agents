@@ -3,6 +3,8 @@ const dbURI = "mongodb://localhost/agents";
 mongoose.connect(dbURI,{useNewUrlParser: true})
 mongoose.connection.on('connected',()=>{console.log(`Mongoose connected to ${dbURI}`)});
 mongoose.connection.on('error',err=>{console.log(`Mongoose connection error:${err}`)});
+
+
 const gracefulShutdown = (msg, callback)=>{
     mongoose.connection.close( ()=> {
         console.log(`Mongoose disconnected via ${msg}`);
