@@ -22,7 +22,7 @@ const parseFile = (inputDataRecs) => {
     let currentField = 'unknown';
     let found = false;
     let debug = true;
-
+    //could rewrite this with map or reduce?
     for (i = 0; i <= inputDataRecs.length - 1; i++) {
         //remove any double quotes, colons or UTF specials from input records
         inputDataRecs[i] = inputDataRecs[i].replace(/[�":]+/g, '');
