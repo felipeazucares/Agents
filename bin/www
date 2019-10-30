@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+require('../app_api/models/db');
 var app = require('../app');
 var debug = require('debug')('agents:server');
 var http = require('http');

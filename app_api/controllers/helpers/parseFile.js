@@ -4,6 +4,9 @@
 */
 
 const parseFile = (inputDataRecs) => {
+    console.log('-----input----')
+    console.log(inputDataRecs)
+    console.log('---------')
     let accumulatedData = '';
     let parsedRecords = [{}];
     // these are fields that we are looking for in each input element
@@ -95,7 +98,9 @@ const parseFile = (inputDataRecs) => {
     parsedRecords[index][currentField] = accumulatedData;
 
     if (debug == true) { console.log(`result: ${JSON.stringify(parsedRecords)}`) }
-    return parsedRecords;
+    //return records less first array element which is empty
+     parsedRecords.shift();
+     return parsedRecords
 }
 
 module.exports = {

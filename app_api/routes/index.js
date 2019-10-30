@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+
 //controllers for each set of us cases
 const ctrlAgents = require('../controllers/agents');
 //const ctrlUser = require('../controllers/users');
