@@ -5,41 +5,47 @@
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const mongoose = require('mongoose');
-const allSchemas = require('../models/agents');
-//console.log(allSchemas.agentsSchemaFields)
+const schemas = require('../models/schemas');
 
-const loadAndProcessData = (req, res) => {
+const defaultUser = {
+    firstname: 'Philip',
+    lastName: 'Suggars',
+    userName: 'felipeazucares',
+    pieces: [{ name: 'Zig-Zag Boy and the Miracle Club' }]
+}
+
+const resetDatabase = (req, res) => {
+
     reader.getFileAsync('./app_api/models/Agents_2018.txt').then(dataOutput => {
-        console.log('File loaded.');
         dataOutput = dataOutput.split('\t\r\n');
         parsedData = parser.parseFile(dataOutput);
+        //create the agent schema
         try {
-            reCreateDb(parsedData);
+            reCreateAgentCollection(parsedData);
+            
+            //create a user 
+            reCreateUserCollection(defaultUser);
             res
                 .status(200)
                 .json({ "Status": "success" })
+
         } catch (err) {
-            console.error(`Error occured writing agent data to db. Error:${err}`);
+            console.error(`Error occured writing agent data to mongoDB schema. Error:${err}`);
             res
                 .status(400)
-                .json({ "Status": "Error occurred writing to agent db" })
+                .json({ "Status": "Error occured writing agent data to mongoDB schema" })
         }
-
     }).catch(err => {
+        console.error('error occured reading the agent text file');
         console.error(err);
     });
 
 };
 
-
-function reCreateDb(parsedData) {
-
-    //const agentsSchema = new mongoose.Schema(allSchemas.agentsSchema);
-    // compile it 
-
-    const agentsModel = mongoose.model('Agent', allSchemas.agentsSchema);
+function reCreateAgentCollection(parsedData) {
+    const agentModel = mongoose.model('Agent', schemas.agentSchema);
     //empty database
-    agentsModel.deleteMany({}, (err, result) => {
+    agentModel.deleteMany({}, (err, result) => {
         if (err) {
             console.error(err)
         }
@@ -49,7 +55,7 @@ function reCreateDb(parsedData) {
         }
     })
     //write records to collection
-    agentsModel.insertMany(parsedData, function (err, response) {
+    agentModel.insertMany(parsedData, function (err, response) {
         if (err) {
             console.error(err);
         }
@@ -57,29 +63,35 @@ function reCreateDb(parsedData) {
             console.log(response);
         }
     });
-
 }
 
-function reCreateDefaultUser(defaultUser) {
-    const mongoose = require('mongoose');
-    const usersSchema = require('./agents');
-    try {
-        let newUser = mongoose.model('users', usersSchema);
-        // now we create get the first record from the parsedData and stick it into the model
-        const userDoc = newUser(defaultUser);
-        userDoc.save
-    } catch (err) {
-        console.error(`Error compiling default user to database in recCreateDb: Error ${err}`);
-    }
-
+function reCreateUserCollection(defaultUser) {
+    const userModel = mongoose.model('Agent', schemas.userSchema);
+    userModel.deleteMany({}, (err, result) => {
+        if (err) {
+            console.error(err)
+        }
+        else {
+            console.log('Existing Users removed')
+            console.log(result)
+        }
+    })
+    //write records to collection
+    userModel.create(defaultUser, function (err, response) {
+        if (err) {
+            console.error(err);
+        }
+        else {
+            console.log(response);
+        }
+    });
 };
+
 
 //need some error check and something to flush data into the db I think
 
 module.exports = {
-    loadAndProcessData,
-    reCreateDb,
-    reCreateDefaultUser
+    resetDatabase
 }
 
 

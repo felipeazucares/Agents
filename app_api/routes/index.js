@@ -9,8 +9,8 @@ const ctrlAgents = require('../controllers/agents');
 
 //agents
 router
-    .route('/agents/build')
-    .get(ctrlAgents.loadAndProcessData);
+    .route('/agents/reset')
+    .get(ctrlAgents.resetDatabase);
 
 
 module.exports = router;
