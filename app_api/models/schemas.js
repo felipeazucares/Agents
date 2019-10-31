@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const agentSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: false
+        required: true
     },
     details: {
         type: String,
@@ -122,13 +122,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true
+    },
     agentList: {
         type: [agentListSchema],
-        required: false
+        required: true
     },
     pieces: {
         type: [pieceListSchema],
-        requried: false
+        requried: true
     }
 });
 
