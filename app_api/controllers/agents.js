@@ -15,21 +15,46 @@ const defaultUser = {
     pieces: [{ name: 'Zig-Zag Boy and the Miracle Club' }]
 }
 
-const resetDatabase = (req, res) => {
+  async function resetDatabase(req, res) {
     reader.getFileAsync('./app_api/models/Agents_2018.txt').then(dataOutput => {
         dataOutput = dataOutput.split('\t\r\n');
         parsedData = parser.parseFile(dataOutput);
         //create the agent schema
         try {
-            reCreateAgentCollection(parsedData);
-            //create a user 
-            reCreateUserCollection(defaultUser);
-
+            await reCreateAgentCollection(parsedData);
+            try {
+                //zap user collection and add default
+                  emptyUserCollection();
+                try {
+                     const result = createUser(defaultUser);
+                     console.log(result);
+                     if (result!==1){
+                         err= result
+                        console.error(`Error occured adding default user to mongoDB schema. Error:${err}`);
+                        res
+                            .status(400)
+                            .json({ "Status": "Error occured adding default user to mongoDB schema" })
+                     }
+                } catch (err) {
+                    console.error(`Error occured adding default user to mongoDB schema. Error:${err}`);
+                    res
+                        .status(400)
+                        .json({ "Status": "Error occured adding default user to mongoDB schema" })
+                        throw(err)
+                }
+            } catch (err) {
+                console.error(`Error occured emptying user data from mongoDB schema. Error:${err}`);
+                res
+                    .status(400)
+                    .json({ "Status": "Error occured emptying user data from mongoDB schema" })
+                    throw(err)
+            }
         } catch (err) {
             console.error(`Error occured writing agent data to mongoDB schema. Error:${err}`);
             res
                 .status(400)
                 .json({ "Status": "Error occured writing agent data to mongoDB schema" })
+                throw(err)
         }
         res
             .status(200)
@@ -37,6 +62,7 @@ const resetDatabase = (req, res) => {
     }).catch(err => {
         console.error('error occured reading the agent text file');
         console.error(err);
+        throw(err)
     });
 };
 
@@ -45,15 +71,11 @@ async function reCreateAgentCollection(parsedData) {
     try {
         //empty database
         result = await agentModel.deleteMany({})
-        // , (err, result) => {
-        //     if (err) {
-        //         console.error(err)
-        //     }
-        //     else {
-        console.log('Existing Documents removed')
-        console.log(result)
-        //     }
-        // })
+        //console.log('Existing Documents removed')
+        //console.log(result)
+
+        return result
+
     } catch (e) {
         console.error('Error occured deleting agent records');
         console.error(e);
@@ -61,14 +83,6 @@ async function reCreateAgentCollection(parsedData) {
     try {
         //write records to collection
         result = await agentModel.insertMany(parsedData);
-        // , function (err, response) {
-        //     if (err) {
-        //         console.error(err);
-        //     }
-        //     else {
-        //         //console.log(response);
-        //     }
-        // });
     } catch (e) {
         console.error('Error occured inserting agent records');
         console.error(e);
@@ -76,37 +90,41 @@ async function reCreateAgentCollection(parsedData) {
 
 }
 
-async function reCreateUserCollection(defaultUser) {
+async function emptyUserCollection() {
     const userModel = mongoose.model('User', schemas.userSchema);
     try {
         //empty database
         result = userModel.deleteMany({});
-        // , (err, result) => {
-        //     if (err) {
-        //         console.error(err)
-        //     }
-        //     else {
         console.log('Existing Documents removed')
         console.log(result)
-        //     }
-        // })
+        return result
     } catch (e) {
         console.error('Error occured deleting user records');
-        console.error(err);
+        console.error(e);
+        throw (e);
     }
+}
+
+async function createUser(defaultUser) {
+    const userModel = mongoose.model('User', schemas.userSchema);
     try {
         //write records to collection
         userModel.insertMany(defaultUser, function (err, response) {
             if (err) {
+                console.error('^^^^^^^^^^^^^^^^^^^^^^^^ERROR^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
                 console.error(err);
+                return err
+                //throw(err)
             }
             else {
                 console.log(response);
+                return 1
             }
         });
     } catch (e) {
         console.error('Error occured inserting default user record');
-        console.error(err);
+        console.error(e);
+        throw (e);
     }
 }
 
