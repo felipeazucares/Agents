@@ -4,9 +4,6 @@
 */
 
 const parseFile = (inputDataRecs) => {
-    console.log('-----input----')
-    console.log(inputDataRecs)
-    console.log('---------')
     let accumulatedData = '';
     let parsedRecords = [{}];
     // these are fields that we are looking for in each input element
@@ -24,7 +21,7 @@ const parseFile = (inputDataRecs) => {
     let index = 0;
     let currentField = 'unknown';
     let found = false;
-    let debug = true;
+    let debug = false;
     //could rewrite this with map or reduce?
     for (i = 0; i <= inputDataRecs.length - 1; i++) {
         //remove any double quotes, colons or UTF specials from input records
@@ -57,7 +54,7 @@ const parseFile = (inputDataRecs) => {
                     // we need to go through the buffer and split it on CRs and write out everything apart from the last item
                     if (accumulatedData.length > 0) {
                         let accumulatedDataSplit = accumulatedData.split('\r\n');
-                        console.log(`accumulatedDataSplit:${JSON.stringify(accumulatedDataSplit)}`);
+                        //console.log(`accumulatedDataSplit:${JSON.stringify(accumulatedDataSplit)}`);
                         if (accumulatedDataSplit.length > 0) {
                             //split always gives us an empty member at the end so pop that off first 
                             accumulatedDataSplit.pop()

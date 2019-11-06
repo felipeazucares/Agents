@@ -9,7 +9,7 @@ const ctrlAgents = require('../controllers/agents');
 
 //agents
 router
-    .route('/agents/reset')
+    .route('/resetDB')
     .get(ctrlAgents.resetDatabase);
 
 
