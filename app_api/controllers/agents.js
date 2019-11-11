@@ -6,7 +6,7 @@
 const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
-const dbUtils = require('../models/database.js');
+const dbUtils = require('../models/dbUtilities.js');
 
 const defaultUser = {
     firstName: 'Philip',
