@@ -7,10 +7,12 @@ const ctrlAgents = require('../controllers/agents');
 //const ctrlUser = require('../controllers/users');
 //const ctrlSubs = require('../controllers/subs');
 
-//agents
+// agent routes
 router
-    .route('/resetDB')
-    .get(ctrlAgents.resetDatabase);
-
+    .route('/reset')
+    .get(ctrlAgents.reset);
+router
+    .route('/search')
+    .get(ctrlAgents.search)
 
 module.exports = router;
