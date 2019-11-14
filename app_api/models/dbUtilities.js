@@ -56,26 +56,32 @@ function insertRecord(itemToInsert, modelName, schema) {
 
 function queryCollection(queryString, modelName, schema) {
     console.log('in: queryCollection');
-    console.log(queryString);
-
     //query markup: | = 'OR' § = 'AND'
     //query structure: Field Operator Value
     //Operator can be any mongoose query operator as we pass it straight into the find clause
+    //todo: initial implementation only provides for logical operators of a single type
 
-    const queryStringClauses = queryString.split(/[|§]/);
+    const queryStringClauses = queryString.split('|');
     console.log(queryStringClauses);
-    const filterObj = {};
+    let filterObj = {};
+    let queryObj = {};
 
-    queryStringClauses.map((clause) => {
-        let queryExpressions = clause.split('~')
-        Object.assign(filterObj,{ [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } })
-    })
+    if (parseInt(queryStringClauses[0]) === 1) {
+        queryStringClauses.shift();
+        filterObj = _createFilter(queryStringClauses);
+        //console.log(filterObj);
+        queryObj = { "$or": [filterObj] };
+    }
+    else {
+        queryStringClauses.shift();
+        filterObj = _createFilter(queryStringClauses);
+        queryObj = { "$and": [filterObj] }
+    }
 
-    console.log(filterObj);
-
+    console.log(JSON.stringify(queryObj));
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
-        dataModel.find(filterObj).then((response) => {
+        dataModel.find(queryObj).then((response) => {
             resolve(response)
         }).catch((err) => {
             console.error(err);
@@ -83,6 +89,17 @@ function queryCollection(queryString, modelName, schema) {
         })
     })
 
+}
+
+function _createFilter(clauses) {
+    //console.log(clauses);
+    const filter = {};
+    clauses.map((clause) => {
+        let queryExpressions = clause.split('~')
+        Object.assign(filter, { [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } })
+    })
+    console.log(filter);
+    return filter
 }
 
 module.exports = {

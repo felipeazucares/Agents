@@ -14,5 +14,8 @@ router
 router
     .route('/search')
     .get(ctrlAgents.search)
+    router
+    .route('/savesearch')
+    .get(ctrlAgents.saveSearchResults)
 
 module.exports = router;

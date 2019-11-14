@@ -50,12 +50,14 @@ function reset(req, res) {
         })
 }
 function search(req, res) {
-    console.log(req.query.field)
-    dbUtils.queryCollection(req.query.qry,'Agent', schemas.agentSchema).then((response) => {
+    //console.log(req.query.field)
+    dbUtils.queryCollection(req.query.qry, 'Agent', schemas.agentSchema).then((response) => {
         res
-        .status(200)
-        .json({ "Status": "success", 
-                "response": response})
+            .status(200)
+            .json({
+                "Status": "success",
+                "response": response
+            })
     }).catch((err) => {
         console.error(err);
         res
@@ -67,67 +69,35 @@ function search(req, res) {
     })
 }
 
-// function resetDatabase_old(req, res) {
-//     console.log("about to readfile.");
-//     reader.getFileAsync('./app_api/models/Agents_2018.txt').then((dataOutput) => {
-//         //console.log(schemas);
-//         dataOutput = dataOutput.split('\t\r\n');
-//         parsedData = parser.parseFile(dataOutput);
-//         //create the agent schema
-//         console.log("about to create collection");
-//         reCreateAgentCollection(parsedData).then((response) => {
-//             console.log("Agent data written to schema.");
-//             dbUtils.emptyCollection('User', schemas.userSchema)
-//                 .then((response) => {
-//                     console.log("User collection cleared");
-//                     dbUtils.insertRecord(defaultUser, 'User', schemas.userSchema)
-//                         .then((response) => {
-//                             //console.log(JSON.stringify(response));
-//                             res
-//                                 .status(200)
-//                                 .json({ "Status": "success" })
-//                         }).catch((err) => {
-//                             res
-//                                 .status(400)
-//                                 .json({
-//                                     "Status": "Error occured adding default user to mongoDB schema",
-//                                     "err": err
-//                                 })
-//                         })
-//                 })
-//                 .catch((err) => {
-//                     console.error(`Error occured clearing user collection. Error:${err}`);
-//                     res
-//                         .status(400)
-//                         .json({
-//                             "Status": "Error occured adding default user to mongoDB schema",
-//                             "err": err
-//                         })
-//                 })
-//         })
-//             .catch((err) => {
-//                 res
-//                     .status(400)
-//                     .json({
-//                         "Status": "Error occured clearing & writing agent data to agents collection in MongoDB.",
-//                         "error": err
-//                     })
-//             })
-//     })
-//         .catch((err) => {
-//             console.error(err);
-//             res
-//                 .status(400)
-//                 .json({
-//                     "Status": "Error occured reading the agents text file.",
-//                     "error": err
-//                 })
-//         })
-// }
-
+function saveSearchResults(req, res) {
+    //todo: need to send some sort of projection parameter to filter the results to strip off the 
+    //todo: record parameter and just keep the agent keys 
+    dbUtils.queryCollection(req.query.qry, 'Agent', schemas.agentSchema).then((response) => {
+        console.log(response);
+        //write records into the given collection with a new name
+        // need to send the collection name - if it exists overwrite
+        return dbUtils.insertMany(response)
+    }).then((response) => {
+        res
+            .status(200)
+            .json({
+                "Status": "Query saved",
+                "response": response
+            })
+    }).catch((err) => {
+        console.error(err);
+        res
+            .status(400)
+            .json({
+                "Status": "Error running and saving query",
+                "err": err
+            })
+    })
+}
 module.exports = {
     reset,
-    search
+    search,
+    saveSearchResults
 }
 
 
