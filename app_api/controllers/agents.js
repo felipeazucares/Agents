@@ -51,7 +51,7 @@ function reset(req, res) {
 }
 function search(req, res) {
     console.log(req.query.field)
-    dbUtils.queryCollection(req.query.qry,req.query.field,'Agent', schemas.agentSchema).then((response) => {
+    dbUtils.queryCollection(req.query.qry,'Agent', schemas.agentSchema).then((response) => {
         res
         .status(200)
         .json({ "Status": "success", 
