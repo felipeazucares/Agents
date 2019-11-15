@@ -51,21 +51,40 @@ const agentSchema = new mongoose.Schema({
     }
 });
 
+
+/* 
+    lists of agents
+*/
+const listSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    }
+})
+
 /* 
 
     sub-document schemas for tracking users and subs 
 
 */
 const agentListSchema = new mongoose.Schema({
+
     listName: {
         type: String,
-        required: false
+        required: true
     },
-    pieces: {
-        type: [String],
-        required: false
+    agents: {
+        type: [listSchema],
+        required: true
     }
+
 });
+
+
 
 /* 
     should probably redefine some of these as type date 
