@@ -61,21 +61,32 @@ function queryCollection(queryString, modelName, schema) {
     //Operator can be any mongoose query operator as we pass it straight into the find clause
     //todo: initial implementation only provides for logical operators of a single type
 
-    const queryStringClauses = queryString.split('|');
+    const queryStringClauses = queryString.split('§');
     console.log(queryStringClauses);
     let filterObj = {};
     let queryObj = {};
 
     if (parseInt(queryStringClauses[0]) === 1) {
         queryStringClauses.shift();
+        console.log(queryStringClauses);
         filterObj = _createFilter(queryStringClauses);
         //console.log(filterObj);
-        queryObj = { "$or": [filterObj] };
+
+        queryObj = { $or: [filterObj] };
+        // queryObj = {
+        //     "$or":
+        //         [
+        //             {"details": { "$regex": "commercial" }},
+        //             { "address": { "$regex": "Road" } }
+        //         ]
+        // }
+
     }
     else {
         queryStringClauses.shift();
+        console.log(queryStringClauses);
         filterObj = _createFilter(queryStringClauses);
-        queryObj = { "$and": [filterObj] }
+        queryObj = filterObj
     }
 
     console.log(JSON.stringify(queryObj));
@@ -92,12 +103,15 @@ function queryCollection(queryString, modelName, schema) {
 }
 
 function _createFilter(clauses) {
-    //console.log(clauses);
+    console.log('createfilter');
+    console.log(clauses);
     const filter = {};
     clauses.map((clause) => {
         let queryExpressions = clause.split('~')
-        Object.assign(filter, { [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } })
+        newObj = { [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } }
+        Object.assign(filter, newObj)
     })
+    //console.log('here');
     console.log(filter);
     return filter
 }
