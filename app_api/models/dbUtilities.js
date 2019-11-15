@@ -57,6 +57,7 @@ function insertRecord(itemToInsert, modelName, schema) {
 
 function deleteMany(query,modelName, schema) {
     console.log('in: deleteMany');
+    console.log(`query is: ${JSON.stringify(query)}`);
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
         dataModel.deleteMany({query}).then((response) => {
@@ -64,9 +65,6 @@ function deleteMany(query,modelName, schema) {
             resolve(response)
         }).catch((err) => {
             console.error(`An error ocurred deleting the records from ${modelName}`);
-            if (err == null || err == undefined) {
-                console.log('special');
-            }
             reject(err)
 
         })
@@ -75,6 +73,7 @@ function deleteMany(query,modelName, schema) {
 
 function deleteOne(query, modelName, schema) {
     console.log('in: deleteOne');
+    console.log(`query is: ${JSON.stringify(query)}`);
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
         dataModel.deleteOne({query}).then((response) => {
@@ -82,9 +81,6 @@ function deleteOne(query, modelName, schema) {
             resolve(response)
         }).catch((err) => {
             console.error(`An error ocurred deleting the record from ${modelName}`);
-            if (err == null || err == undefined) {
-                console.log('special');
-            }
             reject(err)
 
         })

@@ -71,8 +71,6 @@ function agentSearch(req, res) {
 }
 
 function saveAgentSearchResults(req, res) {
-    //todo: need to send some sort of projection parameter to filter the results to strip off the 
-    //todo: record parameter and just keep the agent keys 
     dbUtils.queryCollection(req.query.qry, 'name','Agent', schemas.agentSchema).then((queryData) => {
         console.log(queryData);
         //write records into the given collection with a new name
