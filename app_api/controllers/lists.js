@@ -31,7 +31,7 @@ function agentListDelete(req, res) {
     // delete named user agent list 
     console.log('In agentListDelete')
     //dbUtils.emptyCollection('List', schemas.agentListSchema)
-    dbUtils.deleteMany({listName: {$regex: 'f'}},'List', schemas.agentListSchema)
+    dbUtils.deleteMany({"listName" : req.query.name},'List', schemas.agentListSchema)
     //dbUtils.deleteMany({ "_id": "5dcf1cc9f36e830ba0cd9ed1" }, 'List', schemas.agentListSchema)
         .then((response) => {
             res

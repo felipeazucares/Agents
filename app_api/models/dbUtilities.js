@@ -55,12 +55,11 @@ function insertRecord(itemToInsert, modelName, schema) {
 
 }
 
-function deleteMany(query,modelName, schema) {
+function deleteMany(query, modelName, schema) {
     console.log('in: deleteMany');
-    console.log(`query is: ${JSON.stringify(query)}`);
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
-        dataModel.deleteMany({query}).then((response) => {
+        dataModel.deleteMany(query).then((response) => {
             //console.log(JSON.stringify(response));
             resolve(response)
         }).catch((err) => {
@@ -73,10 +72,9 @@ function deleteMany(query,modelName, schema) {
 
 function deleteOne(query, modelName, schema) {
     console.log('in: deleteOne');
-    console.log(`query is: ${JSON.stringify(query)}`);
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
-        dataModel.deleteOne({query}).then((response) => {
+        dataModel.deleteOne(query).then((response) => {
             //console.log(JSON.stringify(response));
             resolve(response)
         }).catch((err) => {
@@ -84,6 +82,32 @@ function deleteOne(query, modelName, schema) {
             reject(err)
 
         })
+    })
+}
+
+function addSubDocumentByID(parentId, parentModelName, parentSchema, subDocumentName, dataToInsert) {
+    console.log('in: AddSubDocument');
+    const dataModel = mongoose.model(parentModelName, parentSchema);
+    return new Promise((resolve, reject) => {
+        dataModel.findById(parentId)
+            .then((parentDoc) => {
+                if (!parentDoc) {
+                    console.error('Unable to find user');
+                } else {
+                    parentDoc[subDocumentName].push(dataToInsert)
+                    parentDoc.save((err, response) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(response)
+                        }
+                    })
+                }
+            }).catch((err) => {
+                console.error(`An error ocurred adding a subdocument to ${parentModelName}`);
+                reject(err)
+            })
     })
 }
 
@@ -112,7 +136,7 @@ function queryCollection(queryString, projection, modelName, schema) {
 
     const dataModel = mongoose.model(modelName, schema);
     return new Promise((resolve, reject) => {
-        dataModel.find(queryObj,projection).then((response) => {
+        dataModel.find(queryObj, projection).then((response) => {
             resolve(response)
         }).catch((err) => {
             console.error(err);
@@ -139,6 +163,7 @@ module.exports = {
     insertMany,
     insertRecord,
     deleteOne,
-    deleteMany
+    deleteMany,
+    addSubDocumentByID
 
 }

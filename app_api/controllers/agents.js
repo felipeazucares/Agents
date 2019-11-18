@@ -71,8 +71,8 @@ function agentSearch(req, res) {
 }
 
 function saveAgentSearchResults(req, res) {
-    dbUtils.queryCollection(req.query.qry, 'name','Agent', schemas.agentSchema).then((queryData) => {
-        console.log(queryData);
+    dbUtils.queryCollection(req.query.qry, 'name', 'Agent', schemas.agentSchema).then((queryData) => {
+        //console.log(queryData);
         //write records into the given collection with a new name
         // need to send the collection name - if it exists overwrite
         //cook up an object to write to the list object
@@ -80,7 +80,8 @@ function saveAgentSearchResults(req, res) {
             listName: req.query.name,
             agents: queryData
         }
-        return dbUtils.insertRecord(listObject, "List", schemas.agentListSchema)
+        //find out who the current user is and post the details against that user
+        return dbUtils.addSubDocumentByID(req.query.userID, 'User', schemas.userSchema, 'agentList', listObject)
     }).then((response) => {
         res
             .status(200)
@@ -103,5 +104,6 @@ module.exports = {
     agentSearch,
     saveAgentSearchResults
 }
+
 
 
