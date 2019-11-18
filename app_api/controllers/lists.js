@@ -8,7 +8,7 @@ const dbUtils = require('../models/dbUtilities.js');
 
 function agentListSearch(req, res) {
     console.log('In agentListSearch')
-    dbUtils.queryCollection(req.query.qry, '', 'List', schemas.agentListSchema)
+    dbUtils.queryCollection(req.query.qry, 'listName', 'List', schemas.agentListSchema)
         .then((response) => {
             res
                 .status(200)
@@ -30,7 +30,9 @@ function agentListSearch(req, res) {
 function agentListDelete(req, res) {
     // delete named user agent list 
     console.log('In agentListDelete')
-    dbUtils.deleteMany({ [listName]: req.query.name }, 'List', schemas.agentListSchema)
+    //dbUtils.emptyCollection('List', schemas.agentListSchema)
+    dbUtils.deleteMany({listName: {$regex: 'f'}},'List', schemas.agentListSchema)
+    //dbUtils.deleteMany({ "_id": "5dcf1cc9f36e830ba0cd9ed1" }, 'List', schemas.agentListSchema)
         .then((response) => {
             res
                 .status(200)
