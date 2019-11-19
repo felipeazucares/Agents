@@ -3,6 +3,8 @@
     Mongoose database utility functions 
     Library of common mongoose functions for use against all schemas
 
+    TODO: need to error trap these routines properly 
+
 */
 
 const mongoose = require('mongoose');
@@ -85,7 +87,7 @@ function deleteOne(query, modelName, schema) {
     })
 }
 
-function addSubDocumentByID(parentId, parentModelName, parentSchema, subDocumentName, dataToInsert) {
+function insertSubDocumentByID(parentId, parentModelName, parentSchema, subDocumentName, dataToInsert) {
     console.log('in: AddSubDocument');
     const dataModel = mongoose.model(parentModelName, parentSchema);
     return new Promise((resolve, reject) => {
@@ -112,6 +114,9 @@ function addSubDocumentByID(parentId, parentModelName, parentSchema, subDocument
 }
 
 function queryCollection(queryString, projection, modelName, schema) {
+
+    //todo: can we simplify by haveing and 'AND' and an 'OR' URL? then we don't have to use § to split
+    // todo perhaps this URL is doing too much?
     console.log('in: queryCollection');
     //query structure: Field Operator Value
     //Operator can be any mongoose query operator as we pass it straight into the find clause
@@ -162,8 +167,7 @@ module.exports = {
     emptyCollection,
     insertMany,
     insertRecord,
+    insertSubDocumentByID,
     deleteOne,
-    deleteMany,
-    addSubDocumentByID
-
+    deleteMany
 }

@@ -7,14 +7,7 @@ const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const dbUtils = require('../models/dbUtilities.js');
-
-const defaultUser = {
-    firstName: 'Philip',
-    lastName: 'Suggars',
-    userName: 'felipeazucares',
-    password: 'Password1',
-    pieces: [{ name: 'Zig-Zag Boy and the Miracle Club' }]
-}
+const users = require('/.users.js');
 
 function resetAll(req, res) {
     reader.getFileAsync('./app_api/models/Agents_2018.txt')
@@ -32,7 +25,7 @@ function resetAll(req, res) {
             return dbUtils.emptyCollection('User', schemas.userSchema)
         }).then((response) => {
             console.log(response);
-            return dbUtils.insertRecord(defaultUser, 'User', schemas.userSchema)
+            return dbUtils.insertRecord(users.defaultUser, 'User', schemas.userSchema)
         }).then((response) => {
             return dbUtils.emptyCollection('List', schemas.agentListSchema)
         }).then((response) => {
@@ -50,6 +43,14 @@ function resetAll(req, res) {
                 })
         })
 }
+
+/*
+
+
+    TODO: need to error trap all these 
+    TODO: - so check for null paramters & refactor to reduce calls to dbUtils
+
+*/
 function agentSearch(req, res) {
     //console.log(req.query.field)
     dbUtils.queryCollection(req.query.qry, 'name', 'Agent', schemas.agentSchema).then((response) => {
@@ -70,7 +71,7 @@ function agentSearch(req, res) {
     })
 }
 
-function saveAgentSearchResults(req, res) {
+function agentSearchSaveList(req, res) {
     dbUtils.queryCollection(req.query.qry, 'name', 'Agent', schemas.agentSchema).then((queryData) => {
         //console.log(queryData);
         //write records into the given collection with a new name
@@ -81,7 +82,7 @@ function saveAgentSearchResults(req, res) {
             agents: queryData
         }
         //find out who the current user is and post the details against that user
-        return dbUtils.addSubDocumentByID(req.query.userID, 'User', schemas.userSchema, 'agentList', listObject)
+        return dbUtils.insertSubDocumentByID(req.query.userID, 'User', schemas.userSchema, 'agentList', listObject)
     }).then((response) => {
         res
             .status(200)
@@ -102,7 +103,7 @@ function saveAgentSearchResults(req, res) {
 module.exports = {
     resetAll,
     agentSearch,
-    saveAgentSearchResults
+    agentSearchSaveList
 }
 
 

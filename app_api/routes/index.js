@@ -16,8 +16,8 @@ router
     .route('/agentsearch')
     .get(ctrlAgents.agentSearch)
 router
-    .route('/saveagentsearch')
-    .get(ctrlAgents.saveAgentSearchResults)
+    .route('/agentsearchsave')
+    .get(ctrlAgents.agentSearchSaveList)
 router
     .route('/listsearch')
     .get(ctrlLists.agentListSearch)
