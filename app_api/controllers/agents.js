@@ -2,45 +2,58 @@
   Controller for core agent collections functionality
 */
 
-//const mongoose = require('mongoose');
+"use strict";
+
+const mongoose = require('mongoose');
 const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const dbUtils = require('../models/dbUtilities.js');
-const users = require('/.users.js');
+const users = require('./users');
+
 
 function resetAll(req, res) {
     reader.getFileAsync('./app_api/models/Agents_2018.txt')
         .then((dataOutput) => {
-            dataOutput = dataOutput.split('\t\r\n');
-            parsedData = parser.parseFile(dataOutput);
+            const parsedData = parser.parseFile(dataOutput.split('\t\r\n'));
             //create the agent schema
             console.log('Recreating collection from file.');
-            return dbUtils.emptyCollection('Agent', schemas.agentSchema)
-        }).then((response) => {
-            console.log(response)
-            console.log('Agent collection emptied successfully.');
-            return dbUtils.insertMany(parsedData, 'Agent', schemas.agentSchema)
-        }).then((response) => {
-            return dbUtils.emptyCollection('User', schemas.userSchema)
-        }).then((response) => {
-            console.log(response);
-            return dbUtils.insertRecord(users.defaultUser, 'User', schemas.userSchema)
-        }).then((response) => {
-            return dbUtils.emptyCollection('List', schemas.agentListSchema)
-        }).then((response) => {
-            console.log(JSON.stringify(response));
-            res
-                .status(200)
-                .json({ "Status": "success" })
-        }).catch((err) => {
-            console.error(err);
-            res
-                .status(400)
-                .json({
-                    "Status": "Error occured resetting the agent database",
-                    "err": err
+            const agentModel = mongoose.model('Agent', schemas.agentSchema);
+            agentModel.deleteMany({}).then((response) => {
+                console.log(response);
+                return agentModel.insertMany(parsedData)
+            }).then(() => {
+                const userModel = mongoose.model('User', schemas.userSchema);
+                userModel.deleteMany({}).then((response) => {
+                    console.log(response);
+                    return userModel.insertMany(users.defaultUser)
+                }).then((response) => {
+                    console.log(JSON.stringify(response));
+                    res
+                        .status(200)
+                        .json({
+                            "Status": "success",
+                            "response": response
+                        })
+                }).catch((err) => {
+                    console.error(err);
+                    res
+                        .status(400)
+                        .json({
+                            "Status": "Error occured resetting the agent and user collections",
+                            "err": err
+                        })
                 })
+            }).catch((err) => {
+                console.error(err);
+                res
+                    .status(400)
+                    .json({
+                        "Status": "Error occured clearing and inserting records into agents collection",
+                        "err": err
+                    })
+            })
+
         })
 }
 
@@ -51,54 +64,112 @@ function resetAll(req, res) {
     TODO: - so check for null paramters & refactor to reduce calls to dbUtils
 
 */
+
 function agentSearch(req, res) {
-    //console.log(req.query.field)
-    dbUtils.queryCollection(req.query.qry, 'name', 'Agent', schemas.agentSchema).then((response) => {
-        res
-            .status(200)
-            .json({
-                "Status": "success",
-                "response": response
-            })
-    }).catch((err) => {
-        console.error(err);
-        res
+    if (!req.params.qry) {
+        return res
             .status(400)
-            .json({
-                "Status": "Error running query",
-                "err": err
+            .json({ "message": "No query provided" })
+    }
+    else {
+        const agentModel = mongoose.model('Agent', schemas.agentSchema);
+        agentModel.find(req.query.qry)
+            .select('name')
+            .then((response) => {
+                res
+                    .status(200)
+                    .json({
+                        "Status": "success",
+                        "response": response
+                    })
+            }).catch((err) => {
+                console.error(err);
+                res
+                    .status(400)
+                    .json({
+                        "Status": "Error running query",
+                        "err": err
+                    })
             })
-    })
+
+    }
 }
 
 function agentSearchSaveList(req, res) {
-    dbUtils.queryCollection(req.query.qry, 'name', 'Agent', schemas.agentSchema).then((queryData) => {
-        //console.log(queryData);
-        //write records into the given collection with a new name
-        // need to send the collection name - if it exists overwrite
-        //cook up an object to write to the list object
-        listObject = {
-            listName: req.query.name,
-            agents: queryData
-        }
-        //find out who the current user is and post the details against that user
-        return dbUtils.insertSubDocumentByID(req.query.userID, 'User', schemas.userSchema, 'agentList', listObject)
-    }).then((response) => {
-        res
-            .status(200)
-            .json({
-                "Status": "Query saved",
-                "response": response
-            })
-    }).catch((err) => {
-        console.error(err);
-        res
+    if (!req.params.qry || !req.params.name || !req.params.userID) {
+        return res
             .status(400)
-            .json({
-                "Status": "Error running and saving query",
-                "err": err
+            .json({ "message": "Name, query and userID are required" })
+    }
+    else {
+        const agentModel = mongoose.model('Agent', schemas.agentSchema);
+        const filterExpr = _createFilter(req.params.qry)
+        console.log(filterExpr);
+        agentModel.find({})
+            .select('name')
+            .then((agentData) => {
+                console.log(agentData);
+                const listObject = {
+                    listName: req.query.name,
+                    agents: queryData
+                }
+                const userModel = mongoose.model('User', schemas.userSchema);
+                userModel.findById(req.params.userID)
+                    .select('agentList')
+                    .then((parentDoc) => {
+                        if (!parentDoc) {
+                            console.error('Unable to find user');
+                            return res
+                                .status(400)
+                                .json({ "message": `Unable to find user:${req.params.userID}` })
+                        } else {
+                            parentDoc[agentList].push(listObject)
+                            parentDoc.save((err, response) => {
+                                if (err) {
+                                    return res
+                                        .status(400)
+                                        .json(err)
+                                }
+                                else {
+                                    res
+                                        .status(200)
+                                        .json({
+                                            "Status": "success",
+                                            "response": response
+                                        })
+                                }
+                            })
+                        }
+                    }).catch((err) => {
+                        // Error occured finding user provided
+                        if (err) {
+                            console.error("Error finding user");
+                            return res
+                                .status(400)
+                                .json(err)
+                        }
+                    })
+            }).catch((err) => {
+                console.error(err);
+                res
+                    .status(400)
+                    .json({
+                        "Status": "Error running query",
+                        "err": err
+                    })
             })
+    }
+}
+
+function _createFilter(clauses) {
+    console.log('_createfilter');
+    const filterArray = [];
+    clauses.map((clause) => {
+        let queryExpressions = clause.split('~')
+        filterArray.push({ [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } })
     })
+
+    return filterArray
 }
 module.exports = {
     resetAll,

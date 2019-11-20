@@ -12,3 +12,4 @@ const defaultUser = {
 module.exports = {
     defaultUser
 }
+ 
