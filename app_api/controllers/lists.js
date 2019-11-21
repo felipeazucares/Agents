@@ -100,6 +100,9 @@ function agentListDelete(req, res) {
     }
 }
 
+// todo - adding in an agent will require us to get the _id of the agent and pull their details across from the agent collection
+
+
 module.exports = {
     agentListFilter,
     agentListDelete
