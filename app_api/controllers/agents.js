@@ -73,7 +73,7 @@ function agentSearch(req, res) {
             .json({ "message": "No query provided" })
     }
     else {
-        console.log(req.params.qry);
+        //console.log(req.params.qry);
 
         //todo: problem with escaping regex strings in query parameters
         let filterExpr = JSON.parse(req.params.qry)
@@ -112,48 +112,61 @@ function agentSearchSaveList(req, res) {
         agentModel.find(filterExpr)
             .select('name')
             .then((agentData) => {
-                console.log(agentData);
-                const listObject = {
-                    listName: req.params.name,
-                    agents: agentData
-                }
-                const userModel = mongoose.model('User', schemas.userSchema);
-                userModel.findById(req.params.userID)
-                    .select('agentList')
-                    .then((parentDoc) => {
-                        if (!parentDoc) {
-                            console.error('Unable to find user');
-                            return res
+                //console.log(agentData);
+                if (agentData && agentData.length > 0) {
+
+                    const listObject = {
+                        listName: req.params.name,
+                        agents: agentData
+                    }
+                    const userModel = mongoose.model('User', schemas.userSchema);
+                    userModel.findById(req.params.userID)
+                        .select('agentList')
+                        .then((parentDoc) => {
+                            if (!parentDoc) {
+                                console.error('Unable to find user');
+                                return res
+                                    .status(400)
+                                    .json({ "message": `Unable to find user:${req.params.userID}` })
+                            } else {
+                                console.log(parentDoc);
+                                parentDoc.agentList.push(listObject)
+                                parentDoc.save((err, response) => {
+                                    if (err) {
+                                        return res
+                                            .status(400)
+                                            .json(err)
+                                    }
+                                    else {
+                                        res
+                                            .status(200)
+                                            .json({
+                                                "Status": "success",
+                                                "response": response
+                                            })
+                                    }
+                                })
+                            }
+                        }).catch((err) => {
+                            // Error occured finding user provided
+                            console.error("Error finding user");
+                            console.error(err);
+                            res
                                 .status(400)
-                                .json({ "message": `Unable to find user:${req.params.userID}` })
-                        } else {
-                            console.log(parentDoc);
-                            parentDoc.agentList.push(listObject)
-                            parentDoc.save((err, response) => {
-                                if (err) {
-                                    return res
-                                        .status(400)
-                                        .json(err)
-                                }
-                                else {
-                                    res
-                                        .status(200)
-                                        .json({
-                                            "Status": "success",
-                                            "response": response
-                                        })
-                                }
-                            })
-                        }
-                    }).catch((err) => {
-                        // Error occured finding user provided
-                        console.error("Error finding user");
-                        console.error(err);
-                        res
-                            .status(400)
-                            .json(err)
-                    })
-            }).catch((err) => {
+                                .json(err)
+                        })
+
+                }
+                else {
+                    res
+                        .status(200)
+                        .json({
+                            "Status": "No records returned",
+                            "response": response
+                        })
+                }
+            }
+            ).catch((err) => {
                 console.error(err);
                 res
                     .status(400)
@@ -162,6 +175,7 @@ function agentSearchSaveList(req, res) {
                         "err": err
                     })
             })
+
     }
 }
 
