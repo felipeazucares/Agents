@@ -8,9 +8,7 @@ const mongoose = require('mongoose');
 const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
-//const dbUtils = require('../models/dbUtilities.js');
 const users = require('./users');
-
 
 function resetAll(req, res) {
     reader.getFileAsync('./app_api/models/Agents_2018.txt')

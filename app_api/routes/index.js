@@ -19,10 +19,13 @@ router
     .route('/agentsearchsave/:qry/:name/:userID')
     .get(ctrlAgents.agentSearchSaveList)
 router
-    .route('/listFilter/:userID/:filter')
+    .route('/listFilter/:userId/:filter')
     .get(ctrlLists.agentListFilter)
 router
-    .route('/listDelete/:userID/:listId')
+    .route('/listDelete/:userId/:listId')
     .get(ctrlLists.agentListDelete)
+router
+    .route('/listAddItem/:userId/:listId/:agentId')
+    .get(ctrlLists.agentListAddItem)
 
 module.exports = router;
