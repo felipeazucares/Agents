@@ -4,7 +4,6 @@
 
 const mongoose = require('mongoose');
 const schemas = require('../models/schemas');
-//const dbUtils = require('../models/dbUtilities.js');
 
 function agentListFilter(req, res) {
     console.log('In agentListSearch')
@@ -13,16 +12,12 @@ function agentListFilter(req, res) {
             .status(400)
             .json({ "message": "Filter and userID parameters are required" })
     } else {
-        //find user parent document
         const userModel = mongoose.model('User', schemas.userSchema);
-        console.log(req.params.filter)
         userModel.findById(req.params.userID)
             .select('agentList')
-            .then((agentList) => {
-                console.log(agentList)
-                //todo: doesn't think the returned subdoc is an array for some reason
-                 return agentList.filter((listItem) => {
-                     return listItem.listName.find(req.params.filter)
+            .then((parentDoc) => {
+                return parentDoc.agentList.filter((listItem) => {
+                    return listItem.listName == req.params.filter
                 })
             })
             .then((response) => {
@@ -44,25 +39,48 @@ function agentListFilter(req, res) {
 function agentListDelete(req, res) {
     // delete named user agent list 
     console.log('In agentListDelete')
-    //dbUtils.emptyCollection('List', schemas.agentListSchema)
-    dbUtils.deleteMany({ "listName": req.query.name }, 'List', schemas.agentListSchema)
-        //dbUtils.deleteMany({ "_id": "5dcf1cc9f36e830ba0cd9ed1" }, 'List', schemas.agentListSchema)
-        .then((response) => {
-            res
-                .status(200)
-                .json({
-                    "Status": "success",
-                    "response": response
-                })
-        }).catch((err) => {
-            console.error(err);
-            res
-                .status(400)
-                .json({
-                    "Status": "Error running query",
-                    "err": err
-                })
-        })
+    if (!req.params.listId || !req.params.userID) {
+        return res
+            .status(400)
+            .json({ "message": "ListId and userID parameters are required" })
+    } else {
+        const userModel = mongoose.model('User', schemas.userSchema);
+        userModel.findById(req.params.userID)
+            .select('agentList')
+            .then((user) => {
+                if (user.agentList && user.agentList.length > 0) {
+                    if (user.agentList.id(req.params.listId)) {
+                        //console.log(user.agentList._id)
+                        const subDoc = user.agentList.id(req.params.listId)
+                        console.log(subDoc)
+                        user.agentList.id(req.params.listId).remove();
+                        return user.save();
+                    } else {
+                        return res
+                            .status(400)
+                            .json({ "message": "Unable to find list id" })
+                    }
+                }
+                else {
+                    return res
+                        .status(400)
+                        .json({ "message": "Unable to find agentList" })
+                }
+            })
+            .then((response) => {
+                res
+                    .status(200)
+                    .json({
+                        "Status": "success",
+                        "response": response
+                    })
+            }).catch((err) => {
+                console.error(err);
+                res
+                    .status(400)
+                    .json(err)
+            })
+    }
 }
 
 module.exports = {
