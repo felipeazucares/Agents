@@ -57,28 +57,16 @@ function resetAll(req, res) {
         })
 }
 
-/*
-
-
-    TODO: need to error trap all these 
-    TODO: - so check for null paramters & refactor to reduce calls to dbUtils
-
-*/
-
 function agentSearch(req, res) {
-
     if (!req.params.qry) {
         return res
             .status(400)
             .json({ "message": "No query provided" })
     }
     else {
-        //console.log(req.params.qry);
-
         //todo: problem with escaping regex strings in query parameters
-        let filterExpr = JSON.parse(req.params.qry)
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        agentModel.find(filterExpr)
+        agentModel.find(JSON.parse(req.params.qry))
             .select('name')
             .then((response) => {
                 res
@@ -100,7 +88,7 @@ function agentSearch(req, res) {
 }
 
 function agentSearchSaveList(req, res) {
-    console.log(req.query.name);
+    //console.log(req.query.name);
     if (!req.params.qry || !req.params.name || !req.params.userID) {
         return res
             .status(400)
@@ -108,13 +96,11 @@ function agentSearchSaveList(req, res) {
     }
     else {
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        let filterExpr = JSON.parse(req.params.qry)
-        agentModel.find(filterExpr)
+        agentModel.find(JSON.parse(req.params.qry))
             .select('name')
             .then((agentData) => {
-                //console.log(agentData);
+                //console.log(agentData.length);
                 if (agentData && agentData.length > 0) {
-
                     const listObject = {
                         listName: req.params.name,
                         agents: agentData
@@ -129,7 +115,7 @@ function agentSearchSaveList(req, res) {
                                     .status(400)
                                     .json({ "message": `Unable to find user:${req.params.userID}` })
                             } else {
-                                console.log(parentDoc);
+                                //console.log(parentDoc);
                                 parentDoc.agentList.push(listObject)
                                 parentDoc.save((err, response) => {
                                     if (err) {
@@ -162,11 +148,12 @@ function agentSearchSaveList(req, res) {
                         .status(200)
                         .json({
                             "Status": "No records returned",
-                            "response": response
+                            "response": agentData
                         })
                 }
             }
             ).catch((err) => {
+                console.error("Error running query")
                 console.error(err);
                 res
                     .status(400)

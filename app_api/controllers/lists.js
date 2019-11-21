@@ -54,7 +54,24 @@ function agentListDelete(req, res) {
                         const subDoc = user.agentList.id(req.params.listId)
                         console.log(subDoc)
                         user.agentList.id(req.params.listId).remove();
-                        return user.save();
+                        return user.save()
+                            .then((err, response) => {
+                                if (err) {
+                                    console.error("Error saving user document")
+                                    console.error(err)
+                                    return res
+                                        .status(400)
+                                        .json(err)
+                                }
+                                else {
+                                    return res
+                                        .status(200)
+                                        .json({
+                                            "status": "Success",
+                                            "response": response
+                                        })
+                                }
+                            });
                     } else {
                         return res
                             .status(400)
