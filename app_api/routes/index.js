@@ -27,5 +27,8 @@ router
 router
     .route('/listAddItem/:userId/:listId/:agentId')
     .get(ctrlLists.agentListAddItem)
+router
+    .route('/listDeleteItem/:userId/:listId/:agentId')
+    .get(ctrlLists.agentListDeleteItem)
 
 module.exports = router;

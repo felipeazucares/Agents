@@ -50,9 +50,6 @@ function agentListDelete(req, res) {
             .then((user) => {
                 if (user.agentList && user.agentList.length > 0) {
                     if (user.agentList.id(req.params.listId)) {
-                        //console.log(user.agentList._id)
-                        // const subDoc = user.agentList.id(req.params.listId)
-                        // console.log(subDoc)
                         user.agentList.id(req.params.listId).remove();
                         return user.save()
                             .then((err, response) => {
@@ -105,16 +102,98 @@ function agentListAddItem(req, res) {
         userModel.findById(req.params.userId)
             .select('agentList')
             .then((user) => {
+                console.log('user');
                 console.log(user)
-                return agentModel.findById(req.params.agentId)
-                    .select('name')
-                    .then((agentData) => {
-                        // add retrieved agent data to list 
-                        console.log(user);
-                        console.log(user.agentList.id(req.params.listId));
-                        user.agentList.id(req.params.listId).push(agentData);
-                        // const subDoc = user.agentList.id(req.params.listId)
-                        // console.log(subDoc)
+                if (!user) {
+                    return res
+                        .status(400)
+                        .json({ "message": "Unable to find user" })
+                } else {
+                    return agentModel.findById(req.params.agentId)
+                        .select('name')
+                        .then((agentData) => {
+                            if (!agentData || agentData.length == 0) {
+                                return res
+                                    .status(400)
+                                    .json({ "message": "Unable to find agent data to insert" })
+                            } else {
+                                // add retrieved agent data to list
+                                if (!user.agentList.id(req.params.listId)) {
+                                    return res
+                                        .status(400)
+                                        .json({ "message": "Unable to find user's agentlist to insert into" })
+                                } else {
+                                    user.agentList.id(req.params.listId).agents.push(agentData)
+                                    return user.save()
+                                        .then((err, response) => {
+                                            if (err) {
+                                                console.error("Error saving user document")
+                                                console.error(err)
+                                                return res
+                                                    .status(400)
+                                                    .json(err)
+                                            }
+                                            else {
+                                                return res
+                                                    .status(200)
+                                                    .json({
+                                                        "status": "Success",
+                                                        "response": response
+                                                    })
+                                            }
+                                        })
+                                }
+                            }
+                        })
+                        .catch((err) => {
+                            console.error('Error fetching agent data')
+                            res
+                                .status(400)
+                                .json({
+                                    "Status": "Error fetching agent data",
+                                    "err": err
+                                })
+                        })
+                }
+            })
+            .catch((err) => {
+                console.error('Error adding agent to list for user')
+                res
+                    .status(400)
+                    .json({
+                        "Status": "Error adding agent to list for user",
+                        "err": err
+                    })
+            })
+    }
+}
+
+function agentListDeleteItem(req, res) {
+    const userModel = mongoose.model('User', schemas.userSchema);
+
+    if (!req.params.listId || !req.params.userId || !req.params.agentId) {
+        return res
+            .status(400)
+            .json({ "message": "ListId and userId and agentId parameters are required" })
+    } else {
+        // first get the user required
+        userModel.findById(req.params.userId)
+            .select('agentList')
+            .then((user) => {
+                console.log('user');
+                console.log(user)
+                if (!user) {
+                    return res
+                        .status(400)
+                        .json({ "message": "Unable to find user" })
+                } else {
+                    // add retrieved agent data to list
+                    if (!user.agentList.id(req.params.listId)) {
+                        return res
+                            .status(400)
+                            .json({ "message": "Unable to find user's agentlist from which to delete item" })
+                    } else {
+                        user.agentList.id(req.params.listId).agents.id(req.params.agentId).remove()
                         return user.save()
                             .then((err, response) => {
                                 if (err) {
@@ -133,14 +212,15 @@ function agentListAddItem(req, res) {
                                         })
                                 }
                             })
-                    })
+                    }
+                }
             })
             .catch((err) => {
-                console.error('Error adding agent to list for user')
+                console.error('Error deleting agent data from user list')
                 res
                     .status(400)
                     .json({
-                        "Status": "Error adding agent to list for user",
+                        "Status": "Error deleting agent data from user list",
                         "err": err
                     })
             })
@@ -150,8 +230,8 @@ function agentListAddItem(req, res) {
 module.exports = {
     agentListFilter,
     agentListDelete,
-    agentListAddItem
-    //todo: agentListDeleteItem
+    agentListAddItem,
+    agentListDeleteItem
 }
 
 
