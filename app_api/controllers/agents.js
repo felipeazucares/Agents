@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
-const dbUtils = require('../models/dbUtilities.js');
+//const dbUtils = require('../models/dbUtilities.js');
 const users = require('./users');
 
 
@@ -66,14 +66,19 @@ function resetAll(req, res) {
 */
 
 function agentSearch(req, res) {
+
     if (!req.params.qry) {
         return res
             .status(400)
             .json({ "message": "No query provided" })
     }
     else {
+        console.log(req.params.qry);
+
+        //todo: problem with escaping regex strings in query parameters
+        let filterExpr = JSON.parse(req.params.qry)
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        agentModel.find(req.query.qry)
+        agentModel.find(filterExpr)
             .select('name')
             .then((response) => {
                 res
@@ -91,11 +96,11 @@ function agentSearch(req, res) {
                         "err": err
                     })
             })
-
     }
 }
 
 function agentSearchSaveList(req, res) {
+    console.log(req.query.name);
     if (!req.params.qry || !req.params.name || !req.params.userID) {
         return res
             .status(400)
@@ -103,15 +108,14 @@ function agentSearchSaveList(req, res) {
     }
     else {
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        const filterExpr = _createFilter(req.params.qry)
-        console.log(filterExpr);
-        agentModel.find({})
+        let filterExpr = JSON.parse(req.params.qry)
+        agentModel.find(filterExpr)
             .select('name')
             .then((agentData) => {
                 console.log(agentData);
                 const listObject = {
-                    listName: req.query.name,
-                    agents: queryData
+                    listName: req.params.name,
+                    agents: agentData
                 }
                 const userModel = mongoose.model('User', schemas.userSchema);
                 userModel.findById(req.params.userID)
@@ -123,7 +127,8 @@ function agentSearchSaveList(req, res) {
                                 .status(400)
                                 .json({ "message": `Unable to find user:${req.params.userID}` })
                         } else {
-                            parentDoc[agentList].push(listObject)
+                            console.log(parentDoc);
+                            parentDoc.agentList.push(listObject)
                             parentDoc.save((err, response) => {
                                 if (err) {
                                     return res
@@ -142,12 +147,11 @@ function agentSearchSaveList(req, res) {
                         }
                     }).catch((err) => {
                         // Error occured finding user provided
-                        if (err) {
-                            console.error("Error finding user");
-                            return res
-                                .status(400)
-                                .json(err)
-                        }
+                        console.error("Error finding user");
+                        console.error(err);
+                        res
+                            .status(400)
+                            .json(err)
                     })
             }).catch((err) => {
                 console.error(err);
@@ -161,16 +165,7 @@ function agentSearchSaveList(req, res) {
     }
 }
 
-function _createFilter(clauses) {
-    console.log('_createfilter');
-    const filterArray = [];
-    clauses.map((clause) => {
-        let queryExpressions = clause.split('~')
-        filterArray.push({ [queryExpressions[0]]: { [queryExpressions[1]]: queryExpressions[2] } })
-    })
 
-    return filterArray
-}
 module.exports = {
     resetAll,
     agentSearch,
