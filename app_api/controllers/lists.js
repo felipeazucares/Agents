@@ -20,8 +20,9 @@ function agentListFilter(req, res) {
             .select('agentList')
             .then((agentList) => {
                 console.log(agentList)
-                // return agentList.find((listItem) => {
-                //     return listItem.listName.find(req.params.filter)
+                //todo: doesn't think the returned subdoc is an array for some reason
+                 return agentList.filter((listItem) => {
+                     return listItem.listName.find(req.params.filter)
                 })
             })
             .then((response) => {
