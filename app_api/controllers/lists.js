@@ -5,6 +5,7 @@
 const mongoose = require('mongoose');
 const schemas = require('../models/schemas');
 
+// filter specified users lists using string provided
 function agentListFilter(req, res) {
     console.log('In agentListSearch')
     if (!req.params.filter || !req.params.userId) {
@@ -17,6 +18,7 @@ function agentListFilter(req, res) {
             .select('agentList')
             .then((parentDoc) => {
                 return parentDoc.agentList.filter((listItem) => {
+                    // todo: replace this with an includes so broader matching possibilites?
                     return listItem.listName == req.params.filter
                 })
             })
@@ -36,8 +38,8 @@ function agentListFilter(req, res) {
     }
 }
 
+// delete specified user list
 function agentListDelete(req, res) {
-    // delete named user agent list 
     console.log('In agentListDelete')
     if (!req.params.listId || !req.params.userId) {
         return res
@@ -89,6 +91,7 @@ function agentListDelete(req, res) {
     }
 }
 
+// Add specified agent to specified user list
 function agentListAddItem(req, res) {
     const userModel = mongoose.model('User', schemas.userSchema);
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
@@ -168,6 +171,7 @@ function agentListAddItem(req, res) {
     }
 }
 
+// Remove specified item from specified user list
 function agentListDeleteItem(req, res) {
     const userModel = mongoose.model('User', schemas.userSchema);
 

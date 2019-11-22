@@ -10,6 +10,8 @@ const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const users = require('./users');
 
+// maintenance function to empty out all collections (users/agents etc) and rebuild them from scratch
+// todo: split out the database reload from the user recreation - might want to run them seperately
 function resetAll(req, res) {
     reader.getFileAsync('./app_api/models/Agents_2018.txt')
         .then((dataOutput) => {
@@ -55,6 +57,8 @@ function resetAll(req, res) {
         })
 }
 
+// query the agents collection with supplied query object - returns array of matching items
+//todo: this should be a POST and we can send the query as a payload
 function agentSearch(req, res) {
     if (!req.params.qry) {
         return res
@@ -62,7 +66,7 @@ function agentSearch(req, res) {
             .json({ "message": "No query provided" })
     }
     else {
-        //todo: problem with escaping regex strings in query parameters
+        //todo: problem with escaping regex strings in query parameters - see using JSON & POST
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
         agentModel.find(JSON.parse(req.params.qry))
             .select('name')
@@ -85,8 +89,8 @@ function agentSearch(req, res) {
     }
 }
 
+// query the agents collection and store the results as a named list in the user document
 function agentSearchSaveList(req, res) {
-    //console.log(req.query.name);
     if (!req.params.qry || !req.params.name || !req.params.userID) {
         return res
             .status(400)
@@ -139,7 +143,6 @@ function agentSearchSaveList(req, res) {
                                 .status(400)
                                 .json(err)
                         })
-
                 }
                 else {
                     res
