@@ -60,33 +60,33 @@ function resetAll(req, res) {
 // query the agents collection with supplied query object - returns array of matching items
 //todo: this should be a POST and we can send the query as a payload
 function agentSearch(req, res) {
-    if (!req.params.qry) {
+    console.log(req.body.qry);
+    if (!req.body.qry) {
         return res
             .status(400)
             .json({ "message": "No query provided" })
     }
-    else {
-        //todo: problem with escaping regex strings in query parameters - see using JSON & POST
-        const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        agentModel.find(JSON.parse(req.params.qry))
-            .select('name')
-            .then((response) => {
-                res
-                    .status(200)
-                    .json({
-                        "Status": "success",
-                        "response": response
-                    })
-            }).catch((err) => {
-                console.error(err);
-                res
-                    .status(400)
-                    .json({
-                        "Status": "Error running query",
-                        "err": err
-                    })
-            })
-    }
+    //todo: problem with escaping regex strings in query parameters - see using JSON & POST
+    const agentModel = mongoose.model('Agent', schemas.agentSchema);
+    agentModel.find(JSON.parse(req.body.qry))
+        .select('name')
+        .then((response) => {
+            res
+                .status(200)
+                .json({
+                    "Status": "success",
+                    "response": response
+                })
+        }).catch((err) => {
+            console.error(err);
+            res
+                .status(400)
+                .json({
+                    "Status": "Error running query",
+                    "err": err
+                })
+        })
+
 }
 
 // query the agents collection and store the results as a named list in the user document
@@ -96,75 +96,70 @@ function agentSearchSaveList(req, res) {
             .status(400)
             .json({ "message": "Name, query and userID are required" })
     }
-    else {
-        const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        agentModel.find(JSON.parse(req.params.qry))
-            .select('name')
-            .then((agentData) => {
-                //console.log(agentData.length);
-                if (agentData && agentData.length > 0) {
-                    const listObject = {
-                        listName: req.params.name,
-                        agents: agentData
-                    }
-                    const userModel = mongoose.model('User', schemas.userSchema);
-                    userModel.findById(req.params.userID)
-                        .select('agentList')
-                        .then((parentDoc) => {
-                            if (!parentDoc) {
-                                console.error('Unable to find user');
-                                return res
-                                    .status(400)
-                                    .json({ "message": `Unable to find user:${req.params.userID}` })
-                            } else {
-                                //console.log(parentDoc);
-                                parentDoc.agentList.push(listObject)
-                                parentDoc.save((err, response) => {
-                                    if (err) {
-                                        return res
-                                            .status(400)
-                                            .json(err)
-                                    }
-                                    else {
-                                        res
-                                            .status(200)
-                                            .json({
-                                                "Status": "success",
-                                                "response": response
-                                            })
-                                    }
-                                })
-                            }
-                        }).catch((err) => {
-                            // Error occured finding user provided
-                            console.error("Error finding user");
-                            console.error(err);
-                            res
+    const agentModel = mongoose.model('Agent', schemas.agentSchema);
+    agentModel.find(JSON.parse(req.params.qry))
+        .select('name')
+        .then((agentData) => {
+            if (agentData && agentData.length > 0) {
+                const listObject = {
+                    listName: req.params.name,
+                    agents: agentData
+                }
+                const userModel = mongoose.model('User', schemas.userSchema);
+                userModel.findById(req.params.userID)
+                    .select('agentList')
+                    .then((parentDoc) => {
+                        if (!parentDoc) {
+                            console.error('Unable to find user');
+                            return res
                                 .status(400)
-                                .json(err)
-                        })
-                }
-                else {
-                    res
-                        .status(200)
-                        .json({
-                            "Status": "No records returned",
-                            "response": agentData
-                        })
-                }
-            }
-            ).catch((err) => {
-                console.error("Error running query")
-                console.error(err);
-                res
-                    .status(400)
-                    .json({
-                        "Status": "Error running query",
-                        "err": err
+                                .json({ "message": `Unable to find user:${req.params.userID}` })
+                        }
+                        parentDoc.agentList.push(listObject)
+                        parentDoc.save()
+                            .then((err, response) => {
+                                if (err) {
+                                    return res
+                                        .status(400)
+                                        .json(err)
+                                }
+                                else {
+                                    res
+                                        .status(200)
+                                        .json({
+                                            "Status": "success",
+                                            "response": response
+                                        })
+                                }
+                            })
+                    }).catch((err) => {
+                        // Error occured finding user provided
+                        console.error("Error finding user");
+                        console.error(err);
+                        res
+                            .status(400)
+                            .json(err)
                     })
-            })
-
-    }
+            }
+            else {
+                res
+                    .status(200)
+                    .json({
+                        "Status": "No records returned",
+                        "response": agentData
+                    })
+            }
+        }
+        ).catch((err) => {
+            console.error("Error running query")
+            console.error(err);
+            res
+                .status(400)
+                .json({
+                    "Status": "Error running query",
+                    "err": err
+                })
+        })
 }
 
 

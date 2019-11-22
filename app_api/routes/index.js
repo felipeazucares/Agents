@@ -13,8 +13,8 @@ router
     .route('/resetall')
     .get(ctrlAgents.resetAll);
 router
-    .route('/agentsearch/:qry')
-    .get(ctrlAgents.agentSearch)
+    .route('/agentsearch')
+    .post(ctrlAgents.agentSearch)
 router
     .route('/agentsearchsave/:qry/:name/:userID')
     .get(ctrlAgents.agentSearchSaveList)
