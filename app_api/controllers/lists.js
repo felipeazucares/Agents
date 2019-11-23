@@ -114,8 +114,6 @@ function agentListAddItem(req, res) {
     userModel.findById(req.params.userId)
         .select('agentList')
         .then((user) => {
-            console.log('user');
-            console.log(user)
             if (!user) {
                 return res
                     .status(400)

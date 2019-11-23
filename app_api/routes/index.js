@@ -5,7 +5,7 @@ const router = express.Router();
 //controllers for each set of us cases
 const ctrlAgents = require('../controllers/agents');
 const ctrlLists = require('../controllers/lists');
-//const ctrlUser = require('../controllers/users');
+const ctrlUsers = require('../controllers/users');
 //const ctrlSubs = require('../controllers/subs');
 
 // agent routes
@@ -30,5 +30,10 @@ router
 router
     .route('/listDeleteItem/:userId/:listId/:agentId')
     .get(ctrlLists.agentListDeleteItem)
-
+router
+    .route('/addPiece/:userId')
+    .post(ctrlUsers.addPiece)
+router
+    .route('/deletePiece/:userId/:pieceId')
+    .get(ctrlUsers.deletePiece)
 module.exports = router;

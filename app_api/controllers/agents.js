@@ -58,15 +58,15 @@ function resetAll(req, res) {
 }
 
 // query the agents collection with supplied query object - returns array of matching items
-//todo: this should be a POST and we can send the query as a payload
+
 function agentSearch(req, res) {
-    console.log(req.body.qry);
+    // console.log(req.body.qry);
     if (!req.body.qry) {
         return res
             .status(400)
             .json({ "message": "No query provided" })
     }
-    //todo: problem with escaping regex strings in query parameters - see using JSON & POST
+    //todo: problem with escaping regex strings in query parameters
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
     agentModel.find(JSON.parse(req.body.qry))
         .select('name')
