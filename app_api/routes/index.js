@@ -36,4 +36,10 @@ router
 router
     .route('/deletePiece/:userId/:pieceId')
     .get(ctrlUsers.deletePiece)
+router
+    .route('/addSubmission/:userId/:pieceId/:agentId')
+    .post(ctrlUsers.addSubmission)
+router
+    .route('/deleteSubmission/:userId/:pieceId/:submissionId')
+    .get(ctrlUsers.deleteSubmission)
 module.exports = router;

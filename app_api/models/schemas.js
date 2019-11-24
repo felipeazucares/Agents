@@ -90,6 +90,10 @@ const agentListSchema = new mongoose.Schema({
     should probably redefine some of these as type date 
 */
 const submissionSchema = new mongoose.Schema({
+    agent: {
+        type: agentSchema,
+        required: false
+    },
     dateSubbed: {
         type: String,
         required: true
