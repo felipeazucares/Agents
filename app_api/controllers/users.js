@@ -140,12 +140,6 @@ function addSubmission(req, res) {
                             .json({ 'message': 'Unable to find piece' })
                     }
                     //add the submission into the requried piece
-                    //console.log(user.pieces.id(req.params.pieceId));
-                    const submission = {
-                        dateSubbed: req.body.dateSubbed,
-                        status: req.body.status,
-                        agent: req.body.agent
-                    }
                     user.pieces.id(req.params.pieceId).submissions.push(req.body);
                     return user.save()
                         .then((response) => {
