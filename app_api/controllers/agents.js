@@ -69,7 +69,7 @@ function agentSearch(req, res) {
     //todo: problem with escaping regex strings in query parameters
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
     agentModel.find(JSON.parse(req.body.qry))
-        .select('name')
+        //.select('name, details, authors')
         .then((response) => {
             res
                 .status(200)
