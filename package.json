@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha || true"
   },
   "dependencies": {
     "config": "^3.2.4",
@@ -23,4 +24,5 @@
     "chai-http": "^4.3.0",
     "mocha": "^6.2.2"
   }
+
 }
