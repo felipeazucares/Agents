@@ -1,0 +1,4 @@
+{
+    "dbHost": "mongodb://localhost/agents",
+    "defaultUserId": "5dcad2febc2c811971c5893b"
+}

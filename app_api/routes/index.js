@@ -16,8 +16,8 @@ router
     .route('/agentsearch')
     .post(ctrlAgents.agentSearch)
 router
-    .route('/agentsearchsave/:qry/:name/:userID')
-    .get(ctrlAgents.agentSearchSaveList)
+    .route('/agentsearchsave')
+    .post(ctrlAgents.agentSearchSaveList)
 router
     .route('/listFilter/:userId/:filter')
     .get(ctrlLists.agentListFilter)

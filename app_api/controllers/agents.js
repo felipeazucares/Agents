@@ -60,12 +60,29 @@ function resetAll(req, res) {
 
 // query the agents collection with supplied query object - returns array of matching items
 
+function mockDuck(req, res) {
+    //console.log(req.body.qry)
+    const agentModel = mongoose.model('Agent', schemas.agentSchema);
+    agentModel.find({ name: 'blake' })
+        .then((res) => {
+            return res
+                //.status(200)
+                //.json({ "message": "success always" })
+        })
+        .catch((err) => {
+            console.log(err)
+            return res
+                .status(400)
+                .json(err)
+        })
+}
+
 function agentSearch(req, res) {
     //console.log(process.env.NODE_ENV.toUpperCase());
-    if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
-        console.log('In agentSearch')
-        console.log(req.body.qry);
-    }
+    // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+    //     console.log('In agentSearch')
+    //     //console.log(req.body.qry);
+    // }
     if (!req.body.qry) {
         return res
             .status(400)
@@ -76,10 +93,10 @@ function agentSearch(req, res) {
     agentModel.find(JSON.parse(req.body.qry))
         //.select('name, details, authors')
         .then((response) => {
-            console.log('here');
-            if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
-                console.log(response);
-            }
+            //console.log('here');
+            // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+            //     //console.log(response);
+            // }
             res
                 .status(200)
                 .json({
@@ -87,7 +104,7 @@ function agentSearch(req, res) {
                     "response": response
                 })
         }).catch((err) => {
-            console.error(err);
+            //console.error(err);
             res
                 .status(400)
                 .json({
@@ -100,29 +117,31 @@ function agentSearch(req, res) {
 
 // query the agents collection and store the results as a named list in the user document
 function agentSearchSaveList(req, res) {
-    if (!req.params.qry || !req.params.name || !req.params.userID) {
+    console.log('here')
+    //console.log(req)
+    if (!req.body.qry || !req.body.name || !req.body.userId) {
         return res
             .status(400)
-            .json({ "message": "Name, query and userID are required" })
+            .json({ "message": "Name, query and userId are required" })
     }
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find(JSON.parse(req.params.qry))
+    agentModel.find(JSON.parse(req.body.qry))
         .select('name')
         .then((agentData) => {
             if (agentData && agentData.length > 0) {
                 const listObject = {
-                    listName: req.params.name,
+                    listName: req.body.name,
                     agents: agentData
                 }
                 const userModel = mongoose.model('User', schemas.userSchema);
-                userModel.findById(req.params.userID)
+                userModel.findById(req.body.userId)
                     .select('agentList')
                     .then((parentDoc) => {
                         if (!parentDoc) {
                             console.error('Unable to find user');
                             return res
                                 .status(400)
-                                .json({ "message": `Unable to find user:${req.params.userID}` })
+                                .json({ "message": `Unable to find user:${req.body.userId}` })
                         }
                         parentDoc.agentList.push(listObject)
                         parentDoc.save()

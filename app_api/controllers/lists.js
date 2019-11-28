@@ -10,9 +10,9 @@ const schemas = require('../models/schemas');
 
 // filter specified users lists using string provided
 function agentListFilter(req, res) {
-    if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
-        console.log('In agentListSearch')
-    }
+    // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+    //     console.log('In agentListSearch')
+    // }
     if (!req.params.filter || !req.params.userId) {
         return res
             .status(400)
@@ -22,18 +22,20 @@ function agentListFilter(req, res) {
     userModel.findById(req.params.userId)
         .select('agentList')
         .then((parentDoc) => {
-            if (!parentDoc) {
-                console.error(err);
-                return res
-                    .status(400)
-                    .json({ "message": "Unable to find user" })
-            }
-            return parentDoc.agentList.filter((listItem) => {
+            // if (!parentDoc) {
+            //     //console.error(err);
+            //     return res
+            //         .status(400)
+            //         .json({ "message": "Unable to find user" })
+            // }
+            //console.log(parentDoc)
+             return parentDoc.agentList.filter((listItem) => {
                 // todo: replace this with an includes so broader matching possibilites?
                 return listItem.listName == req.params.filter
             })
         })
         .then((response) => {
+            //console.log(response)
             res
                 .status(200)
                 .json({
@@ -41,17 +43,16 @@ function agentListFilter(req, res) {
                     "response": response
                 })
         }).catch((err) => {
-            console.error(err);
+            //console.error(err);
             res
                 .status(400)
                 .json(err)
         })
-
 }
 
 // delete specified user list
 function agentListDelete(req, res) {
-    console.log('In agentListDelete')
+    // console.log('In agentListDelete')
     if (!req.params.listId || !req.params.userId) {
         return res
             .status(400)
