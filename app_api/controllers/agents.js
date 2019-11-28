@@ -10,6 +10,7 @@ const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const users = require('./users');
 
+
 // maintenance function to empty out all collections (users/agents etc) and rebuild them from scratch
 // todo: split out the database reload from the user recreation - might want to run them seperately
 function resetAll(req, res) {
@@ -60,7 +61,11 @@ function resetAll(req, res) {
 // query the agents collection with supplied query object - returns array of matching items
 
 function agentSearch(req, res) {
-    // console.log(req.body.qry);
+    //console.log(process.env.NODE_ENV.toUpperCase());
+    if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+        console.log('In agentSearch')
+        console.log(req.body.qry);
+    }
     if (!req.body.qry) {
         return res
             .status(400)
@@ -71,6 +76,10 @@ function agentSearch(req, res) {
     agentModel.find(JSON.parse(req.body.qry))
         //.select('name, details, authors')
         .then((response) => {
+            console.log('here');
+            if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+                console.log(response);
+            }
             res
                 .status(200)
                 .json({

@@ -10,7 +10,9 @@ const schemas = require('../models/schemas');
 
 // filter specified users lists using string provided
 function agentListFilter(req, res) {
-    console.log('In agentListSearch')
+    if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
+        console.log('In agentListSearch')
+    }
     if (!req.params.filter || !req.params.userId) {
         return res
             .status(400)

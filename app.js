@@ -3,7 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var config = require('config');
 require('./app_api/models/db');
+
 
 //const indexRouter = require('./app_server/routes/index');
 const apiRouter = require('./app_api/routes/index');
@@ -12,7 +14,7 @@ const apiRouter = require('./app_api/routes/index');
 var app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'app_server','views'));
+app.set('views', path.join(__dirname, 'app_server', 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
@@ -26,12 +28,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/agents_api', apiRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -41,4 +43,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 //comment
-module.exports = app;
+module.exports = app

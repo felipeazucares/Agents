@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
-const dbURI = "mongodb://localhost/agents";
-mongoose.connect(dbURI,{useNewUrlParser: true})
-mongoose.connection.on('connected',()=>{console.log(`Mongoose connected to ${dbURI}`)});
+const config = require('config')
+//const dbURI = "mongodb://localhost/agents";
+//const dbURI = 
+mongoose.connect(config.dbHost,{useNewUrlParser: true})
+mongoose.connection.on('connected',()=>{console.log(`Mongoose connected to ${config.dbHost}`)});
 mongoose.connection.on('error',err=>{console.log(`Mongoose connection error:${err}`)});
 
 

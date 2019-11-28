@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha || true"
   },
   "dependencies": {
+    "config": "^3.2.4",
     "cookie-parser": "~1.4.4",
     "csv": "^5.1.1",
     "debug": "~2.6.9",
@@ -15,5 +17,12 @@
     "mongoose": "^5.6.3",
     "morgan": "~1.9.1",
     "pug": "^2.0.4"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.2.2"
   }
+
 }
