@@ -10,7 +10,6 @@ const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const users = require('./users');
 
-
 // maintenance function to empty out all collections (users/agents etc) and rebuild them from scratch
 // todo: split out the database reload from the user recreation - might want to run them seperately
 function resetAll(req, res) {
@@ -60,23 +59,6 @@ function resetAll(req, res) {
 
 // query the agents collection with supplied query object - returns array of matching items
 
-function mockDuck(req, res) {
-    //console.log(req.body.qry)
-    const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find({ name: 'blake' })
-        .then((res) => {
-            return res
-                //.status(200)
-                //.json({ "message": "success always" })
-        })
-        .catch((err) => {
-            console.log(err)
-            return res
-                .status(400)
-                .json(err)
-        })
-}
-
 function agentSearch(req, res) {
     //console.log(process.env.NODE_ENV.toUpperCase());
     // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
@@ -90,7 +72,7 @@ function agentSearch(req, res) {
     }
     //todo: problem with escaping regex strings in query parameters
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find(JSON.parse(req.body.qry))
+    agentModel.find(req.body.qry)
         //.select('name, details, authors')
         .then((response) => {
             //console.log('here');
@@ -117,15 +99,14 @@ function agentSearch(req, res) {
 
 // query the agents collection and store the results as a named list in the user document
 function agentSearchSaveList(req, res) {
-    console.log('here')
-    //console.log(req)
+    //console.log(req.body)
     if (!req.body.qry || !req.body.name || !req.body.userId) {
         return res
             .status(400)
             .json({ "message": "Name, query and userId are required" })
     }
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find(JSON.parse(req.body.qry))
+    agentModel.find(req.body.qry)
         .select('name')
         .then((agentData) => {
             if (agentData && agentData.length > 0) {
@@ -145,20 +126,13 @@ function agentSearchSaveList(req, res) {
                         }
                         parentDoc.agentList.push(listObject)
                         parentDoc.save()
-                            .then((err, response) => {
-                                if (err) {
-                                    return res
-                                        .status(400)
-                                        .json(err)
-                                }
-                                else {
-                                    res
-                                        .status(200)
-                                        .json({
-                                            "Status": "success",
-                                            "response": response
-                                        })
-                                }
+                            .then((response) => {
+                                res
+                                    .status(200)
+                                    .json({
+                                        "Status": "success",
+                                        "response": response
+                                    })
                             })
                     }).catch((err) => {
                         // Error occured finding user provided

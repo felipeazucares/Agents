@@ -32,10 +32,10 @@ describe('Agents API test Suite', () => {
                     response.should.have.status(400)
                     response.body.should.not.be.empty;
                     response.body.message.should.be.equal("No query provided")
+                    response.should.be.json;
                     done(err)
                 })
         });
-
 
         it('it should return all agents ...', (done) => {
             const qry = { qry: {} }
@@ -48,11 +48,50 @@ describe('Agents API test Suite', () => {
                     response.should.have.status(200)
                     response.body.should.be.a('object')
                     response.body.should.not.be.empty;
+                    response.should.be.json;
                     done(err)
                 })
         });
     })
 
+    describe('/POST agentSearchSave suite:', () => {
+        it('it should fail because no parameters...', (done) => {
+            chai.request(server)
+                .post('/agents_api/agentsearchsave')
+                .set('content-type', 'application/json')
+                .send()
+                .end((err, response) => {
+                    response.should.have.status(400)
+                    response.body.should.not.be.empty;
+                    response.body.message.should.be.equal("Name, query and userId are required")
+                    done(err)
+                })
+        });
+
+        it('it should save commercial agents to a list called "test" ...', (done) => {
+
+            const body = {
+                userId: `${config.defaultUserId}`,
+                name: "test",
+                qry: {
+                    details:
+                        { $regex: "(?i)commercial" }
+                }
+            }
+
+            chai.request(server)
+                .post('/agents_api/agentsearchsave')
+                .set('content-type', 'application/json')
+                .send(body)
+                .end((err, response) => {
+                    //console.log(response.body)
+                    response.should.have.status(200)
+                    response.body.should.be.a('object')
+                    response.body.should.not.be.empty;
+                    done(err)
+                })
+        })
+    });
 
     describe('/GET listfilter suite', () => {
         it('it should fail if filter & user missing ...', (done) => {
