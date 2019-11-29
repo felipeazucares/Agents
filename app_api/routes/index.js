@@ -25,6 +25,9 @@ router
     .route('/listDelete/:userId/:listId')
     .get(ctrlLists.agentListDelete)
 router
+    .route('/listDeleteAll/:userId')
+    .get(ctrlLists.agentListDeleteAll)
+router
     .route('/listAddItem/:userId/:listId/:agentId')
     .get(ctrlLists.agentListAddItem)
 router

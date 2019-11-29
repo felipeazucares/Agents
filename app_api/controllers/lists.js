@@ -10,9 +10,6 @@ const schemas = require('../models/schemas');
 
 // filter specified users lists using string provided
 function agentListFilter(req, res) {
-    // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
-    //     console.log('In agentListSearch')
-    // }
     if (!req.params.filter || !req.params.userId) {
         return res
             .status(400)
@@ -22,14 +19,7 @@ function agentListFilter(req, res) {
     userModel.findById(req.params.userId)
         .select('agentList')
         .then((parentDoc) => {
-            // if (!parentDoc) {
-            //     //console.error(err);
-            //     return res
-            //         .status(400)
-            //         .json({ "message": "Unable to find user" })
-            // }
-            //console.log(parentDoc)
-             return parentDoc.agentList.filter((listItem) => {
+            return parentDoc.agentList.filter((listItem) => {
                 // todo: replace this with an includes so broader matching possibilites?
                 return listItem.listName == req.params.filter
             })
@@ -62,39 +52,94 @@ function agentListDelete(req, res) {
         userModel.findById(req.params.userId)
             .select('agentList')
             .then((user) => {
-                if (user.agentList && user.agentList.length > 0) {
-                    if (user.agentList.id(req.params.listId)) {
-                        user.agentList.id(req.params.listId).remove();
-                        return user.save()
-                            .then((err, response) => {
-                                if (err) {
-                                    console.error("Error saving user document")
-                                    console.error(err)
-                                    return res
-                                        .status(400)
-                                        .json(err)
-                                }
-                                else {
+                if (user) {
+                    if (user.agentList && user.agentList.length > 0) {
+                        if (user.agentList.id(req.params.listId)) {
+                            user.agentList.id(req.params.listId).remove();
+                            return user.save()
+                                .then((response) => {
                                     return res
                                         .status(200)
                                         .json({
                                             "status": "Success",
                                             "response": response
                                         })
-                                }
-                            });
-                    } else {
+                                }).catch((err) => {
+                                    console.error("Error saving user document")
+                                    console.error(err)
+                                    return res
+                                        .status(400)
+                                        .json(err)
+
+                                });
+                        } else {
+                            return res
+                                .status(400)
+                                .json({ "message": "Unable to find listid" })
+                        }
+                    }
+                    else {
                         return res
                             .status(400)
-                            .json({ "message": "Unable to find list id" })
+                            .json({ "message": "Unable to find agentList" })
                     }
-                }
-                else {
+                } else {
                     return res
                         .status(400)
-                        .json({ "message": "Unable to find agentList" })
+                        .json({ "message": "Unable to find userId" })
                 }
             }).catch((err) => {
+                console.error(err);
+                res
+                    .status(400)
+                    .json(err)
+            })
+    }
+}
+
+// delete all user lists
+function agentListDeleteAll(req, res) {
+    // console.log('In agentListDelete')
+    if (!req.params.userId) {
+        return res
+            .status(400)
+            .json({ "message": "UserId parameter is required" })
+    } else {
+        const userModel = mongoose.model('User', schemas.userSchema);
+        userModel.findById(req.params.userId)
+            .select('agentList')
+            .then((user) => {
+                if (user) {
+                    if (user.agentList && user.agentList.length > 0) {
+                        //delete all subdocs by setting length to 0
+                        user.agentList = []
+                        user.save()
+                            .then((response) => {
+                                return res
+                                    .status(200)
+                                    .json({
+                                        "message": "Success",
+                                        "response": response
+                                    })
+                            }).catch((err) => {
+                                return res
+                                    .status(400)
+                                    .json({ "message": "Error saving user list" })
+                            })
+                    }
+                    else {
+                        return res
+                            .status(400)
+                            .json({ "message": "Unable to find user agentList" })
+                    }
+
+                } else {
+                    return res
+                        .status(400)
+                        .json({ "message": "Unable to find userId" })
+                }
+            }).catch((err) => {
+                console.error('Error deleting all agent lists for user');
                 console.error(err);
                 res
                     .status(400)
@@ -138,30 +183,13 @@ function agentListAddItem(req, res) {
                     }
                     user.agentList.id(req.params.listId).agents.push(agentData)
                     return user.save()
-                        .then((err, response) => {
-                            if (err) {
-                                console.error("Error saving user document")
-                                console.error(err)
-                                return res
-                                    .status(400)
-                                    .json(err)
-                            }
-                            else {
-                                return res
-                                    .status(200)
-                                    .json({
-                                        "status": "Success",
-                                        "response": response
-                                    })
-                            }
-                        })
                 })
                 .catch((err) => {
-                    console.error('Error fetching agent data')
+                    console.error('Error accessing and saving agent data to user')
                     res
                         .status(400)
                         .json({
-                            "Status": "Error fetching agent data",
+                            "Status": "Error accessing and saving agent data to user",
                             "err": err
                         })
                 })
@@ -235,9 +263,12 @@ function agentListDeleteItem(req, res) {
 
 }
 
+
+
 module.exports = {
     agentListFilter,
     agentListDelete,
+    agentListDeleteAll,
     agentListAddItem,
     agentListDeleteItem
 }

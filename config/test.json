@@ -1,1 +1,4 @@
-{"dbHost" : "mongodb://localhost/agents"}
+{
+    "dbHost": "mongodb://localhost/agents",
+    "defaultUserId": "5dd5797c28cb4c618015aae0"
+}

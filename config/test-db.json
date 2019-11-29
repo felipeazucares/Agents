@@ -1,0 +1,8 @@
+{
+    "dbHost": "mongodb://localhost/agents_test",
+    "defaultUserId": "5de12c48d94c3f47ee147076"
+}
+// {
+//     "dbHost": "mongodb://localhost/agents",
+//     "defaultUserId": "5dd5797c28cb4c618015aae0"
+// }
