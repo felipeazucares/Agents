@@ -1,30 +1,4 @@
-/* 
-    test case to check that the get function returns
-*/
-process.env.NODE_ENV = 'test-db';
-'use strict'
-
-const mongoose = require("mongoose");
-const schemas = require('../app_api/models/schemas');
-const agents = require('../app_api/controllers/agents.js');
-const lists = require('../app_api/controllers/lists.js');
-const server = require('../app.js');
-const assert = require('assert')
-const config = require('config')
-
-//Require the dev-dependencies
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const should = chai.should();
-
-chai.use(chaiHttp);
-
-describe('Agents test Suite', () => {
-    beforeEach(() => {
-        //don't have anything too do in this case
-    })
-    
-    describe('/POST agentSearch suite:', () => {
+describe('/POST agentSearch suite:', () => {
         it('it should return No query error ...', (done) => {
             //const qry = {}
             chai.request(server)
@@ -241,53 +215,3 @@ describe('Agents test Suite', () => {
     *           ListAddItem
     *
     **********************************/
-   
-    describe('/GET listAddItem suite', function () {
-
-        //before we can test deletion we have to add at least one list in.
-        const userModel = mongoose.model('User', schemas.userSchema);
-        const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        let agentToAddId = {}
-        const listObject = {
-            listName: 'testList',
-            _id: mongoose.Types.ObjectId(),
-            agents: [{
-                _id: "00000000000000000000000",
-                name: "Test agent"
-            }]
-        }
-        const lengthToTestAgainst = listObject.agents.length
-
-        beforeEach((done) => {
-             userModel.findById(config.defaultUserId)
-                .select('agentList')
-                .then((parentDoc) => {
-                    if (!parentDoc) {
-                        console.error('Unable to find user');
-                    }
-                    parentDoc.agentList.push(listObject)
-                    return parentDoc.save()
-                })
-                .then(() => {
-                    return agentModel.find({})
-                })
-                .then((response) => {
-                    agentToAddId = response[0]._id
-                    //console.log(response[0]._id);
-                    //done()
-                }).finally(done())
-        })
-
-        it('should add a new item into the testList', (done) => {
-            chai.request(server)
-                .get(`/agents_api/listAddItem/${config.defaultUserId}/${listObject._id}/${agentToAddId}`)
-                .end((err, response) => {
-                    response.should.have.status(200)
-                    response.body.agentList.testList.should.not.be.equal(lengthToTestAgainst + 1)
-                    done(err)
-                })
-
-        })
-    })
-
-})
