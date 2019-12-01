@@ -251,7 +251,7 @@ describe('Agents test Suite', function () {
         let agentToAddId
         const listObject = {
             listName: 'testList',
-            //_id: mongoose.Types.ObjectId(),
+            _id: mongoose.Types.ObjectId(),
             agents: [{
                 _id: "00000000000000000000000",
                 name: "Test agent"
@@ -282,47 +282,37 @@ describe('Agents test Suite', function () {
         //async version 
         before('everything else', async function () {
             parentDoc = await userModel.findById(config.defaultUserId)
-            //.select('agentList')
+            .select('agentList')
             if (!parentDoc) {
                 console.error('Unable to find user');
             }
-
-            // this creates the agentlist that we will add to: testList
-            //parentDoc.agentList.findOneandRemove({})
             parentDoc.agentList.push(listObject)
             //get number of items in the array
             lengthToTestAgainst = parentDoc.agentList[parentDoc.agentList.length-1].agents.length;
-
-            //parentDoc.save()
-            //let saveResp = await parentDoc.save()
-            //console.log((saveResp));
-            //get id of last list added
-            listId = parentDoc.agentList[parentDoc.agentList.length - 1]._id
-            let save = await parentDoc.save()
+            //listId = parentDoc.agentList[parentDoc.agentList.length - 1]._id
+            await parentDoc.save()
             //think you can get the latest testlist ID as it's the latest item in the array
-
             //get all the agents and pull the first one off the list
             let response = await agentModel.find({})
             addItem.agent = response[0]._id
-
         })
 
         it('should add a new item into the testList', function (done) {
-
             chai.request(server)
-                .get(`/agents_api/listAddItem/${config.defaultUserId}/${listId}/${addItem.agent}`)
+                .get(`/agents_api/listAddItem/${config.defaultUserId}/${listObject._id}/${addItem.agent}`)
                 .end((err, response) => {
                     response.body.message.should.be.equal('Success')
                     response.should.have.status(200)
-                    //need to naviage to the correct item in the list 
+                    //redef for clarity
                     const reply = response.body.response
+                    reply.agentList.should.be.a('array')
                     reply.agentList[reply.agentList.length-1].agents.length.should.be.equal(lengthToTestAgainst + 1)
                     done(err)
                 })
 
         })
 
-        //should probably delete them after this ... but maybe not?
+        //should probably delete the content of the db after this ... but maybe not?
 
     })
 })
