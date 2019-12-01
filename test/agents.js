@@ -282,13 +282,13 @@ describe('Agents test Suite', function () {
         //async version 
         before('everything else', async function () {
             parentDoc = await userModel.findById(config.defaultUserId)
-            .select('agentList')
+                .select('agentList')
             if (!parentDoc) {
                 console.error('Unable to find user');
             }
             parentDoc.agentList.push(listObject)
             //get number of items in the array
-            lengthToTestAgainst = parentDoc.agentList[parentDoc.agentList.length-1].agents.length;
+            lengthToTestAgainst = parentDoc.agentList[parentDoc.agentList.length - 1].agents.length;
             //listId = parentDoc.agentList[parentDoc.agentList.length - 1]._id
             await parentDoc.save()
             //think you can get the latest testlist ID as it's the latest item in the array
@@ -306,7 +306,7 @@ describe('Agents test Suite', function () {
                     //redef for clarity
                     const reply = response.body.response
                     reply.agentList.should.be.a('array')
-                    reply.agentList[reply.agentList.length-1].agents.length.should.be.equal(lengthToTestAgainst + 1)
+                    reply.agentList[reply.agentList.length - 1].agents.length.should.be.equal(lengthToTestAgainst + 1)
                     done(err)
                 })
 
