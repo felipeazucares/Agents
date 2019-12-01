@@ -15,16 +15,17 @@ const config = require('config')
 //Require the dev-dependencies
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+//const chaiAsPromised = require('chai-as-promised')
 const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe('Agents test Suite', () => {
+describe('Agents test Suite', function () {
     beforeEach(() => {
         //don't have anything too do in this case
     })
-    
-    describe('/POST agentSearch suite:', () => {
+
+    describe('/POST agentSearch suite:', function () {
         it('it should return No query error ...', (done) => {
             //const qry = {}
             chai.request(server)
@@ -241,53 +242,87 @@ describe('Agents test Suite', () => {
     *           ListAddItem
     *
     **********************************/
-   
-    describe('/GET listAddItem suite', function () {
 
+    describe('/GET listAddItem suite', function () {
+        addItem = this
         //before we can test deletion we have to add at least one list in.
         const userModel = mongoose.model('User', schemas.userSchema);
         const agentModel = mongoose.model('Agent', schemas.agentSchema);
-        let agentToAddId = {}
+        let agentToAddId
         const listObject = {
             listName: 'testList',
-            _id: mongoose.Types.ObjectId(),
+            //_id: mongoose.Types.ObjectId(),
             agents: [{
                 _id: "00000000000000000000000",
                 name: "Test agent"
             }]
         }
-        const lengthToTestAgainst = listObject.agents.length
+        let lengthToTestAgainst
 
-        beforeEach((done) => {
-             userModel.findById(config.defaultUserId)
-                .select('agentList')
-                .then((parentDoc) => {
-                    if (!parentDoc) {
-                        console.error('Unable to find user');
-                    }
-                    parentDoc.agentList.push(listObject)
-                    return parentDoc.save()
-                })
-                .then(() => {
-                    return agentModel.find({})
-                })
-                .then((response) => {
-                    agentToAddId = response[0]._id
-                    //console.log(response[0]._id);
-                    //done()
-                }).finally(done())
+        // before(function () {
+        //     return userModel.findById(config.defaultUserId)
+        //         .select('agentList')
+        //         .then((parentDoc) => {
+        //             if (!parentDoc) {
+        //                 console.error('Unable to find user');
+        //             }
+        //             parentDoc.agentList.push(listObject)
+        //             return parentDoc.save()
+        //         })
+        //         .then(() => {
+        //             return agentModel.find({})
+        //         })
+        //         .then((response) => {
+        //             agentToAddId = response[0]._id
+        //             //console.log(response[0]._id);
+        //             //done()
+        //         })
+        // })
+
+        //async version 
+        before('everything else', async function () {
+            parentDoc = await userModel.findById(config.defaultUserId)
+            //.select('agentList')
+            if (!parentDoc) {
+                console.error('Unable to find user');
+            }
+
+            // this creates the agentlist that we will add to: testList
+            //parentDoc.agentList.findOneandRemove({})
+            parentDoc.agentList.push(listObject)
+            //get number of items in the array
+            lengthToTestAgainst = parentDoc.agentList[parentDoc.agentList.length-1].agents.length;
+
+            //parentDoc.save()
+            //let saveResp = await parentDoc.save()
+            //console.log((saveResp));
+            //get id of last list added
+            listId = parentDoc.agentList[parentDoc.agentList.length - 1]._id
+            let save = await parentDoc.save()
+            //think you can get the latest testlist ID as it's the latest item in the array
+
+            //get all the agents and pull the first one off the list
+            let response = await agentModel.find({})
+            addItem.agent = response[0]._id
+
         })
 
-        it('should add a new item into the testList', (done) => {
+        it('should add a new item into the testList', function (done) {
+
             chai.request(server)
-                .get(`/agents_api/listAddItem/${config.defaultUserId}/${listObject._id}/${agentToAddId}`)
+                .get(`/agents_api/listAddItem/${config.defaultUserId}/${listId}/${addItem.agent}`)
                 .end((err, response) => {
+                    response.body.message.should.be.equal('Success')
                     response.should.have.status(200)
-                    response.body.agentList.testList.should.not.be.equal(lengthToTestAgainst + 1)
+                    //need to naviage to the correct item in the list 
+                    const reply = response.body.response
+                    reply.agentList[reply.agentList.length-1].agents.length.should.be.equal(lengthToTestAgainst + 1)
                     done(err)
                 })
 
         })
-    })
 
+        //should probably delete them after this ... but maybe not?
+
+    })
 })

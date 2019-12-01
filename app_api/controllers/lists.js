@@ -184,9 +184,17 @@ function agentListAddItem(req, res) {
                     user.agentList.id(req.params.listId).agents.push(agentData)
                     return user.save()
                 })
+                .then((response) => {
+                    return res
+                        .status(200)
+                        .json({
+                            "message": "Success",
+                            "response": response
+                        })
+                })
                 .catch((err) => {
                     console.error('Error accessing and saving agent data to user')
-                    res
+                    return res
                         .status(400)
                         .json({
                             "Status": "Error accessing and saving agent data to user",
@@ -196,7 +204,7 @@ function agentListAddItem(req, res) {
         })
         .catch((err) => {
             console.error('Error adding agent to list for user')
-            res
+            return res
                 .status(400)
                 .json({
                     "Status": "Error adding agent to list for user",
