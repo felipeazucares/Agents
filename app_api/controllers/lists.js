@@ -29,7 +29,7 @@ function agentListFilter(req, res) {
             res
                 .status(200)
                 .json({
-                    "Status": "success",
+                    "status": "success",
                     "response": response
                 })
         }).catch((err) => {
@@ -77,8 +77,7 @@ function agentListDelete(req, res) {
                                 .status(400)
                                 .json({ "message": "Unable to find listid" })
                         }
-                    }
-                    else {
+                    } else {
                         return res
                             .status(400)
                             .json({ "message": "Unable to find agentList" })
@@ -126,8 +125,7 @@ function agentListDeleteAll(req, res) {
                                     .status(400)
                                     .json({ "message": "Error saving user list" })
                             })
-                    }
-                    else {
+                    } else {
                         return res
                             .status(400)
                             .json({ "message": "Unable to find user agentList" })
@@ -197,7 +195,7 @@ function agentListAddItem(req, res) {
                     return res
                         .status(400)
                         .json({
-                            "Status": "Error accessing and saving agent data to user",
+                            "status": "Error accessing and saving agent data to user",
                             "err": err
                         })
                 })
@@ -207,7 +205,7 @@ function agentListAddItem(req, res) {
             return res
                 .status(400)
                 .json({
-                    "Status": "Error adding agent to list for user",
+                    "status": "Error adding agent to list for user",
                     "err": err
                 })
         })
@@ -248,8 +246,7 @@ function agentListDeleteItem(req, res) {
                         return res
                             .status(400)
                             .json(err)
-                    }
-                    else {
+                    } else {
                         return res
                             .status(200)
                             .json({
@@ -264,7 +261,7 @@ function agentListDeleteItem(req, res) {
             res
                 .status(400)
                 .json({
-                    "Status": "Error deleting agent data from user list",
+                    "status": "Error deleting agent data from user list",
                     "err": err
                 })
         })
@@ -280,5 +277,3 @@ module.exports = {
     agentListAddItem,
     agentListDeleteItem
 }
-
-

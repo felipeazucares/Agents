@@ -32,7 +32,7 @@ function resetAll(req, res) {
                     res
                         .status(200)
                         .json({
-                            "Status": "success",
+                            "status": "success",
                             "response": response
                         })
                 }).catch((err) => {
@@ -40,7 +40,7 @@ function resetAll(req, res) {
                     res
                         .status(400)
                         .json({
-                            "Status": "Error occured resetting the agent and user collections",
+                            "status": "Error occured resetting the agent and user collections",
                             "err": err
                         })
                 })
@@ -49,7 +49,7 @@ function resetAll(req, res) {
                 res
                     .status(400)
                     .json({
-                        "Status": "Error occured clearing and inserting records into agents collection",
+                        "status": "Error occured clearing and inserting records into agents collection",
                         "err": err
                     })
             })
@@ -82,7 +82,7 @@ function agentSearch(req, res) {
             res
                 .status(200)
                 .json({
-                    "Status": "success",
+                    "status": "success",
                     "response": response
                 })
         }).catch((err) => {
@@ -90,7 +90,7 @@ function agentSearch(req, res) {
             res
                 .status(400)
                 .json({
-                    "Status": "Error running query",
+                    "status": "Error running query",
                     "err": err
                 })
         })
@@ -130,7 +130,7 @@ function agentSearchSaveList(req, res) {
                                 res
                                     .status(200)
                                     .json({
-                                        "Status": "success",
+                                        "status": "success",
                                         "response": response
                                     })
                             })
@@ -142,23 +142,21 @@ function agentSearchSaveList(req, res) {
                             .status(400)
                             .json(err)
                     })
-            }
-            else {
+            } else {
                 res
                     .status(200)
                     .json({
-                        "Status": "No records returned",
+                        "status": "No records returned",
                         "response": agentData
                     })
             }
-        }
-        ).catch((err) => {
+        }).catch((err) => {
             console.error("Error running query")
             console.error(err);
             res
                 .status(400)
                 .json({
-                    "Status": "Error running query",
+                    "status": "Error running query",
                     "err": err
                 })
         })
@@ -170,6 +168,3 @@ module.exports = {
     agentSearch,
     agentSearchSaveList
 }
-
-
-
