@@ -60,7 +60,7 @@ function resetAll(req, res) {
 // query the agents collection with supplied query object - returns array of matching items
 
 function agentSearch(req, res) {
-    //console.log(process.env.NODE_ENV.toUpperCase());
+    // console.log(process.env.NODE_ENV.toUpperCase());
     // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
     //     console.log('In agentSearch')
     //     //console.log(req.body.qry);
@@ -72,7 +72,7 @@ function agentSearch(req, res) {
     }
     //todo: problem with escaping regex strings in query parameters
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find(req.body.qry)
+    agentModel.find(JSON.parse(req.body.qry))
         //.select('name, details, authors')
         .then((response) => {
             //console.log('here');
@@ -106,7 +106,7 @@ function agentSearchSaveList(req, res) {
             .json({ "message": "Name, query and userId are required" })
     }
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
-    agentModel.find(req.body.qry)
+    agentModel.find(JSON.parse(req.body.qry))
         .select('name')
         .then((agentData) => {
             if (agentData && agentData.length > 0) {
