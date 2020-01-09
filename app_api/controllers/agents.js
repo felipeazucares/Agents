@@ -73,7 +73,7 @@ function agentSearch(req, res) {
     //todo: problem with escaping regex strings in query parameters
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
     agentModel.find(JSON.parse(req.body.qry))
-        //.select('name, details, authors')
+        .select('name')
         .then((response) => {
             //console.log('here');
             // if (process.env.NODE_ENV.toUpperCase() !== 'PRODUCTION') {
@@ -107,7 +107,7 @@ function agentSearchSaveList(req, res) {
     }
     const agentModel = mongoose.model('Agent', schemas.agentSchema);
     agentModel.find(JSON.parse(req.body.qry))
-        .select('name')
+        .select('name details website')
         .then((agentData) => {
             if (agentData && agentData.length > 0) {
                 const listObject = {

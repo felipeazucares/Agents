@@ -63,6 +63,18 @@ const listSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
+    },
+    address: {
+        type: String,
+        required: false
+    },
+    website: {
+        type: String,
+        required: false
+    },
+    details: {
+        type: String,
+        required: false
     }
 })
 
