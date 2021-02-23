@@ -9,6 +9,7 @@ const schemas = require('../models/schemas');
 const reader = require('./helpers/readFile');
 const parser = require('./helpers/parseFile');
 const users = require('./users');
+const config = require('../../config/config.json')
 
 // maintenance function to empty out all collections (users/agents etc) and rebuild them from scratch
 // todo: split out the database reload from the user recreation - might want to run them seperately
@@ -162,9 +163,17 @@ function agentSearchSaveList(req, res) {
         })
 }
 
+function version(req,res){
+
+        return res
+            .status(400)
+            .json({ "message": `v ${config.version}` })
+
+}
 
 module.exports = {
     resetAll,
     agentSearch,
-    agentSearchSaveList
+    agentSearchSaveList,
+    version
 }

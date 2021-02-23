@@ -1,8 +1,8 @@
 /* 
     test case to check that the get function returns
 */
-process.env.NODE_ENV = 'test-db';
 'use strict'
+process.env.NODE_ENV = 'test-db';
 
 const mongoose = require("mongoose");
 const schemas = require('../app_api/models/schemas');

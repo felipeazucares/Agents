@@ -6,6 +6,7 @@ const router = express.Router();
 const ctrlAgents = require('../controllers/agents');
 const ctrlLists = require('../controllers/lists');
 const ctrlUsers = require('../controllers/users');
+
 //const ctrlSubs = require('../controllers/subs');
 
 // agent routes
@@ -18,6 +19,9 @@ router
 router
     .route('/agentsearchsave')
     .post(ctrlAgents.agentSearchSaveList)
+router
+    .route('/version')
+    .get(ctrlAgents.version)
 router
     .route('/listFilter/:userId/:filter')
     .get(ctrlLists.agentListFilter)
